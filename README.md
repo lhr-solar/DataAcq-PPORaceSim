@@ -6,6 +6,7 @@
 - [Gymnasium](https://github.com/Farama-Foundation/Gymnasium)
 - [Stable Baselines 3](https://github.com/DLR-RM/stable-baselines3)
 - [Pygame](https://github.com/pygame/pygame)
+- This repository uses the KA-CHOW repository. Make sure to install all requirements listed in ka-chow/requirements.txt in addition to the following.
 
 Follow the guide for your OS to install Anaconda. Then, install Gymnasium using Anaconda while in the environment you want to use Gymnasium in. Preferably a new one for this project.
 
@@ -14,10 +15,11 @@ Follow the guide for your OS to install Anaconda. Then, install Gymnasium using 
 conda create -n driver python=3.9.16
 conda activate driver
 
-conda install numpy=1.21.6
+pip install numpy=1.21.6
 pip install stable-baselines3==2.0.0a2
-pip install gymnasium==0.27.1
+pip install gymnasium==0.28.1
 pip install pygame
+pip install tensorboard
 ```
 
 You are now ready to run code
