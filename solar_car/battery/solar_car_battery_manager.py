@@ -25,7 +25,7 @@ class SolarCarBatteryManager(CasadiManager):
         initial_soc,
         nproc,
         dt=1,
-        minSteps = 3000,
+        minSteps = 50000,
         setup_only=False,
     ):
         self.netlist = netlist

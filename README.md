@@ -3,34 +3,34 @@
 ## Prereqs
 
 - [Anaconda](https://www.anaconda.com/)
-- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium)
-- [Stable Baselines 3](https://github.com/DLR-RM/stable-baselines3)
-- [Pygame](https://github.com/pygame/pygame)
 
-Follow the guide for your OS to install Anaconda. Then, install Gymnasium using Anaconda while in the environment you want to use Gymnasium in. Preferably a new one for this project.
+Follow the guide for your OS to install Anaconda. Then, install the following prereqs using Anaconda, preferably in a new environment.
 
 ```bash
 # Create new env
 conda create -n driver python=3.9.16
 conda activate driver
 
-conda install numpy=1.21.6
-pip install stable-baselines3==2.0.0a2
-pip install gymnasium==0.27.1
-pip install pygame
+conda install numpy=1.21.6 -y
+conda install tensorboard -y 
+conda install nomkl -y
+pip install stable-baselines3[extra]==2.1.0
+pip install gymnasium==0.29.1
+pip install pygame==2.5.1
+pip install scipy==1.10.1
+pip install liionpack
+pip install opencv-python==4.7.0.72
 ```
 
 You are now ready to run code
 
-Note: We would prefer to use conda to install these dependencies, but pip seems to work better.
-
-## Starting a new model
+## Start training a new model
 
 ```python
 python new_train.py
 ```
 
-## Training an existing model
+## Train an existing model
 
 ```python
 python continue_train.py
@@ -46,4 +46,13 @@ python play_latest.py
 
 ###
 
-The model is currently located in solar_car_2.py. The model for the car is in solar_car.
+The env is currently located in solar_car_env.py. The car model is defined in solar_car. 
+
+# Appendix
+
+## Dependencies:
+
+- [Gymnasium](https://github.com/Farama-Foundation/Gymnasium): Library for creating reinforced learning environments
+- [Stable Baselines3](https://github.com/DLR-RM/stable-baselines3): Reinforced learning algorithms
+- [Pygame](https://github.com/pygame/pygame): Game library used to visualize model
+- [liionpack](https://github.com/pybamm-team/liionpack): Battery model

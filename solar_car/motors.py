@@ -21,7 +21,7 @@ class Motors:
     def __init__(self, time_step: float):
         self.time_step = time_step
 
-    def step(self, gas: float, voltage: float) -> float:
+    def step(self, gas: float, voltage: float, physical_max_speed: float) -> float:
         """
         Steps the simulation forward by one time step.
 
@@ -29,32 +29,39 @@ class Motors:
         ----------
         gas : float
             The amount of gas being applied to the car in range of [-1, 1].
-
         voltage : float
             The voltage of the battery.
+        physical_max_speed : float
+            The maximum speed of at the time_step due to physical limitations.
 
         Returns
         -------
         float
             The current being drawn from the motors.
+        float
+            The distance traveled in this time step.
 
         """
 
         self.current_voltage = np.clip(voltage, 0, self.max_voltage)
-        max_speed = (self.current_voltage / self.max_voltage) * self.max_speed
+        voltage_max_speed = (self.current_voltage /
+                             self.max_voltage) * self.max_speed
 
         if self.current_speed == 0:
             acc = self.motor_acceleration * gas
         else:
-            acc = np.clip(10 / self.current_speed * gas, -
+            acc = np.clip((1 - self.current_speed / self.max_speed) * gas * self.motor_acceleration, -
                           self.motor_acceleration, self.motor_acceleration)
+
         self.current_current = np.abs(
             acc) / self.motor_acceleration * self.max_current
         self.current_speed = np.clip(
-            self.current_speed + acc * self.time_step, 0, max_speed)
+            self.current_speed + acc * self.time_step, 0, min(voltage_max_speed, physical_max_speed))
 
-        if gas == 0:
+        if np.abs(self.current_current) > 0:
             self.current_speed = np.clip(
-                self.current_speed - (self.friction_resistance * self.time_step * np.sign(self.current_speed)), 0, max_speed)
+                self.current_speed - (self.friction_resistance * self.time_step * np.sign(self.current_speed)), 0, voltage_max_speed)
 
-        return self.current_current
+        distance = self.current_speed * self.time_step
+
+        return self.current_current, distance

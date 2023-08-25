@@ -1,3 +1,4 @@
+import numpy as np
 from fixed_gym import *
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
@@ -8,15 +9,15 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 gym.register(
     id="SolarCar-v0",
-    entry_point="solar_car_2:SolarCar",
+    entry_point="solar_car_env:SolarCarEnv",
     max_episode_steps=2500,
 )
 
-env = make_vec_env("SolarCar-v0", n_envs=100,
-                   env_kwargs=dict(render_mode="computer"))
+env = make_vec_env("SolarCar-v0", n_envs=1,
+                   env_kwargs=dict(render_mode="human"), seed=np.random.randint(0, 2 ** 31))
 
 model = PPO("MlpPolicy", env, verbose=1, tensorboard_log='log', device="cuda")
 
-model.learn(total_timesteps=500000, progress_bar=True)
+model.learn(total_timesteps=10000, progress_bar=True)
 
 model.save("ppo_car_racing")

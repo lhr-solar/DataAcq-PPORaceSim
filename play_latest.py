@@ -1,14 +1,13 @@
-from fixed_gym import gym
-
+from fixed_gym import *
 from stable_baselines3 import PPO
 
 gym.register(
     id="SolarCar-v0",
-    entry_point="solar_car_2:SolarCar",
+    entry_point="solar_car_env:SolarCarEnv",
     max_episode_steps=300,
 )
 
-env = gym.make("SolarCar-v0", render_mode="human", timeStepDuration=1/60)
+env = gym.make("SolarCar-v0", render_mode="human", time_step_duration=1)
 
 model = PPO.load("ppo_car_racing", env=env)
 

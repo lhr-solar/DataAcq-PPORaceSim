@@ -1,12 +1,11 @@
-from battery.solar_car_battery_manager import SolarCarBatteryManager
+import time
+import logging
+import os
+from solar_car.battery.solar_car_battery_manager import SolarCarBatteryManager
 
 import liionpack as lp
 import pybamm
 import numpy as np
-
-import os
-import logging
-import time
 
 parameter_values = pybamm.ParameterValues("Chen2020")
 
@@ -21,17 +20,17 @@ class Battery:
         The time step length of the simulation in seconds. The default is 1.0.
     """
 
-    # Need accurate numbers for this. Let's just assume Telsa for now?
-    np = 14  # number of parallel cells
-    ns = 6  # number of series cells
-    netlist = lp.setup_circuit(
-        np, ns, V=25, I=300)
-
     current_draw = 0
     _step = 1
 
     def __init__(self, time_step: float):
         self.time_step = time_step
+
+        # Need accurate numbers for this. Let's just assume Telsa for now?
+        self.np = 14  # number of parallel cells
+        self.ns = 6  # number of series cells
+        self.netlist = lp.setup_circuit(
+            self.np, self.ns, V=25, I=300)
 
         logging.info("Initializing battery simulation")
         start = time.time()
@@ -39,6 +38,7 @@ class Battery:
         output_variables = [
             "X-averaged negative particle surface concentration [mol.m-3]",
         ]
+        lp.logger.disabled = True
         self.sim = SolarCarBatteryManager()
         self.sim.solve(
             netlist=self.netlist,
@@ -64,14 +64,18 @@ class Battery:
         self.current_draw = current
 
     def step(self):
-        start = time.time()
-        self.sim.protocol[self._step] = self.current_draw
-        ok = self.sim._step(self._step, None)
-        self.sim.step = self._step
-        self._step += 1
-        end = time.time()
-        logging.debug(f'Battery step complete in {end - start} seconds')
-        return ok
+        try:
+            start = time.time()
+            self.sim.protocol[self._step] = self.current_draw
+            ok = self.sim._step(self._step, None)
+            self.sim.step = self._step
+            self._step += 1
+            end = time.time()
+            logging.debug(f'Battery step complete in {end - start} seconds')
+            return ok
+        except Exception as e:
+            logging.fatal(f'Battery step failed: {e}')
+            return False
 
     def _output(self):
         return self.sim.step_output()

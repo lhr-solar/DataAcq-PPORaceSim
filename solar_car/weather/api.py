@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 
 
@@ -23,7 +24,11 @@ class WeatherInterface:
                         return float(hour["solarradiation"])
 
     def save(self):
-        with open("weather_data/weather.json", "w+") as outfile:
+        try:
+            os.makedirs("weather_data")
+        except FileExistsError:
+            pass
+        with open("weather_data/weather.json", "w") as outfile:
             self.raw["beginTime"] = self.start_time
             self.raw["endTime"] = self.end_time
             outfile.write(json.dumps(self.raw))
