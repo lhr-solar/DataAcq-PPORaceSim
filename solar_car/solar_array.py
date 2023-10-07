@@ -1,41 +1,17 @@
 
-#model for a solar cell in a solar panel
-# class SolarCell:
+# model for a solar cell in a solar panel
+class SolarCell:
     # @param area is in cm^2, efficiency is a percentage, temperature is in Celsius
     # @param temperature coefficient is in %/C, negative value for how much it decreases
     # self.area is in m^2
-    # def __init__(self, area, efficiency, temperature, temperature_coefficient):
-    #     self.area = area / 10000
-    #     self.efficiency = efficiency
-    #     self.temperature = temperature
-    #     self.temperature_coefficient = temperature_coefficient
-
-    #     self.standard_temp = 25  # standard test condition temperature
-    #     self.standard_intensity = 1000  # standard test condition intensity
-
-    # def get_area(self):
-    #     return self.area
-
-    # def get_efficiency(self):
-    #     return self.efficiency
-
-    # def update_temperature(self, temperature):
-    #     self.temperature = temperature
-
-    # # light_intensity is in W/m^2
-    # def get_power_gen(self, light_intensity):
-    #     temperature_loss = (self.temperature -
-    #                         self.standard_temp) * self.temperature_coefficient
-    #     return self.area * self.efficiency * light_intensity * (1 - temperature_loss)
-class SolarCell:
-    def _init_(self, area, efficiency, annualRadiation, performanceRatio):
+    def __init__(self, area, efficiency, temperature, temperature_coefficient):
         self.area = area / 10000
         self.efficiency = efficiency
-        self.annualRadiation = annualRadiation
-        self.performanceRatio = performanceRatio
+        self.temperature = temperature
+        self.temperature_coefficient = temperature_coefficient
 
-        self.annualRadiation = 1500
-        self.standardPerformanceRatio = 0.75
+        self.standard_temp = 25  # standard test condition temperature
+        self.standard_intensity = 1000  # standard test condition intensity
 
     def get_area(self):
         return self.area
@@ -43,15 +19,16 @@ class SolarCell:
     def get_efficiency(self):
         return self.efficiency
 
-    def get_annualRadiation(self):
-        return self.annualRadiation
-    
-    def get_performanceRatio(self):
-        return self.performanceRatio
+    def update_temperature(self, temperature):
+        self.temperature = temperature
 
-    def get_energy_gen(self):
-        return self.area * self.efficiency * self.annualRadiation * self.performanceRatio
-    
+    # light_intensity is in W/m^2
+    def get_power_gen(self, light_intensity):
+        temperature_loss = (self.temperature -
+                            self.standard_temp) * self.temperature_coefficient
+        return self.area * self.efficiency * light_intensity * (1 - temperature_loss)
+
+
 class SolarArray:
     def __init__(self):
         self.temperature = 25  # temporary
