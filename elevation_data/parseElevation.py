@@ -1,17 +1,21 @@
-import numpy
+import numpy as np
 import pandas as pd
-with open('elevation_test_data_1.txt', 'r') as file:
-
-    df = pd.read_csv("elevation_test_data_1.txt", sep = '\t')
+import matplotlib.pyplot as plt
     
-    latitude = df.iloc[:,1]
-    longitude = df.iloc[:,2]
-    altitude = df.iloc[:,3]
+df = pd.read_csv("elevation_test_data_1.txt", header= None)
 
-    length = len(latitude)
-    xCoordinates = pd.Series()
-    yCoordinates = pd.Series()
+print(df.head())
+latitude = df.iloc[:,0]
+longitude = df.iloc[:,1]
+altitude = df.iloc[:,2]
 
-    for i in range(len(latitude)):
-        xCoordinates[i] = 6378000 * numpy.sin((90 - (float(latitude[i]))) * numpy.pi / 180) * numpy.cos((float(latitude[i])) * numpy.pi / 180)
-        yCoordinates[i] = 6378000 * numpy.sin((90 - (float(latitude[i]))) * numpy.pi / 180) * numpy.sin((float(longitude[i])) * numpy.pi / 180)
+# for i in range(len(latitude)):
+#     df.iloc[i, 0] = 6378000 * np.sin((90 - (float(latitude.iloc[i]))) * np.pi / 180) * np.cos((float(latitude.iloc[i])) * np.pi / 180)
+#     df.iloc[i, 1] = 6378000 * np.sin((90 - (float(latitude.iloc[i]))) * np.pi / 180) * np.sin((float(longitude.iloc[i])) * np.pi / 180)
+
+# df = df.to_numpy()
+
+fig = plt.figure(figsize=(10,6))
+ax = fig.add_subplot(projection='3d')
+ax.plot3D(df.iloc[:, 0], df.iloc[:, 1], df.iloc[:, 2], c = 'r')
+plt.show()
