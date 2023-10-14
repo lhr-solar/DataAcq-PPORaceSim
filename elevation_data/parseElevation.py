@@ -1,13 +1,20 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-    
-df = pd.read_csv("elevation_test_data_1.txt", header= None)
 
-print(df.head())
-latitude = df.iloc[:,0]
-longitude = df.iloc[:,1]
-altitude = df.iloc[:,2]
+with open('elevation_test_data_1.txt', 'r') as fin, open('elevation_commas_out.txt', 'w') as fout:
+    s = fin.readline()
+    for line in fin:
+        s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
+        print(s)
+        fout.write(s)
+# dependent on ensuring altitude is in meters in the text file
+df = pd.read_csv('elevation_commas_out.txt')
+
+print(df.columns)
+latitude = df.iloc[:, 1]
+longitude = df.iloc[:, 2]
+altitude = df.iloc[:, 3]
 
 # for i in range(len(latitude)):
 #     df.iloc[i, 0] = 6378000 * np.sin((90 - (float(latitude.iloc[i]))) * np.pi / 180) * np.cos((float(latitude.iloc[i])) * np.pi / 180)
@@ -17,5 +24,5 @@ altitude = df.iloc[:,2]
 
 fig = plt.figure(figsize=(10,6))
 ax = fig.add_subplot(projection='3d')
-ax.plot3D(df.iloc[:, 0], df.iloc[:, 1], df.iloc[:, 2], c = 'r')
+ax.plot3D(latitude, longitude, altitude, c = 'r')
 plt.show()
