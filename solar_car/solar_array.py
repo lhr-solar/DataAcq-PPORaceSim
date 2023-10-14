@@ -26,7 +26,7 @@ class SolarCell:
     def get_power_gen(self, light_intensity):
         temperature_loss = (self.temperature -
                             self.standard_temp) * self.temperature_coefficient
-        return self.area * self.efficiency * light_intensity * (1 - temperature_loss)
+        return self.area * self.efficiency * light_intensity * (1 - temperature_loss) #update
 
 
 class SolarArray:

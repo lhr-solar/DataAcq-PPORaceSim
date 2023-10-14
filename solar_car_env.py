@@ -24,7 +24,7 @@ class SolarCarEnv(gym.Env):
                     "coordinates": [random.randrange(0, self.window_size), random.randrange(0, self.window_size)]
                 },
                 "properties": {
-                    "elevation": random.randrange(0, 15)
+                    "elevation": random.uniform(0, 0.15)
                 }
             } for _ in range(10)]
         }

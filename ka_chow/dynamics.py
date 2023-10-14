@@ -26,7 +26,7 @@ class Dynamics:
     def inertial_force(self):
         return self.mass * (self.velocity - self.prev_velocity) / (self.time - self.prev_time)
     
-    def road_slope_force(self, slope):
+    def road_slope_force(self, slope): #
         return self.mass * self.GRAVITY * math.sin(slope)
     
     def road_load_force(self, slope):

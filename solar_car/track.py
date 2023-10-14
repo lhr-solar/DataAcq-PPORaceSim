@@ -1,8 +1,14 @@
 import numpy as np
 import splines
 import json
-
+import plotly.express as px;
+from mpl_toolkits.mplot3d import axes3d
+import pandas as pd;
+import matplotlib.pyplot as plt
 from scipy.integrate import quad
+import scipy as sp
+import scipy.interpolate
+from solar_car.helper import plot_spline_3d
 
 
 class Track:
@@ -51,8 +57,7 @@ class Track:
         aspect_ratio = (max_lat - min_lat)/(max_lon - min_lon)
 
         # Scale points and convert to km
-        points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] -
-                                                              min_lat)/(max_lat - min_lat), point[2]] for point in points]
+        points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] - min_lat)/(max_lat - min_lat), point[2]] for point in points]
         points = np.array(points)
         points[:, 1] = points[:, 1]*aspect_ratio
         points = points*.65  # rough conversion to km from lat/lon
@@ -60,9 +65,6 @@ class Track:
 
         self.points = points
         cmr = splines.CatmullRom(points, endconditions="closed")
-
-        self.cmr = cmr
-
         self.piece_lengths = []
         for i in range(len(cmr.grid) - 1):
             self.piece_lengths += [self.__arc_length(
@@ -70,13 +72,33 @@ class Track:
         self.track_length = sum(self.piece_lengths)
         self.t_len = self.track_length
 
+        fig = plt.figure(figsize=(10,6))
+        ax = fig.add_subplot(projection='3d')
+        
+        ax.scatter3D(points[:, 0], points[:, 1], points[:, 2], c = 'r')
+        plot_spline_3d(cmr, ax=ax)
+
+        cmr2 = sp.interpolate.Rbf(points[:, 0], points[:, 1], points[:, 2],smooth=5)
+        # ax.plot_surface(x1, y2, Z,alpha=0.2)
+        # trace = []
+        # for t in np.linspace(start= 0, stop = self.track_length, retstep= 0.5):
+        #     x, y, z = self.evaluate_cs(t)
+        #     trace.append[x, y, z]
+        # ax.plot3D(trace[:, 0], trace[:, 1], trace[:, 2])
+        plt.show()
+        # print(cmr.segments)
+        # ax.plot3D(cmr.segments[0], cmr.segments[1], cmr.segments[2])
+        self.cmr = cmr
+
         min_x, max_x, min_y, max_y = np.min(points[:, 0]), np.max(
             points[:, 0]), np.min(points[:, 1]), np.max(points[:, 1])
         self.bounding_box = np.array([[min_x, min_y], [max_x, max_y]])
 
         # Determine ground level by taking average.
         self.ground_level = np.mean([point[2] for point in points])
+        print(points)
 
+    #def get_standard_length_arr() 
     # PARAMS
     # y1 = y'(x)
     # y2 = y''(x)
