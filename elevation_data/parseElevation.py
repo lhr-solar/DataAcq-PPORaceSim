@@ -13,5 +13,5 @@ with open('elevation_test_data_1.txt', 'r') as file:
     yCoordinates = pd.Series()
 
     for i in range(len(latitude)):
-        xCoordinates[i] = 6378000 * numpy.sin((float(latitude[i])) * numpy.pi / 180) * numpy.cos((float(latitude[i])) * numpy.pi / 180)
-        yCoordinates[i] = 6378000 * numpy.sin((float(latitude[i])) * numpy.pi / 180) * numpy.sin((float(longitude[i])) * numpy.pi / 180)
+        xCoordinates[i] = 6378000 * numpy.sin((90 - (float(latitude[i]))) * numpy.pi / 180) * numpy.cos((float(latitude[i])) * numpy.pi / 180)
+        yCoordinates[i] = 6378000 * numpy.sin((90 - (float(latitude[i]))) * numpy.pi / 180) * numpy.sin((float(longitude[i])) * numpy.pi / 180)
