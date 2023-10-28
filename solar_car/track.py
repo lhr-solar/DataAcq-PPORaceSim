@@ -28,16 +28,25 @@ class Track:
     def __init__(self, track_file: str = None, geo_json: any = None) -> None:
         points = []
         if track_file:
-            with open(track_file) as f:
-                geo_json = json.load(f)
-                features = geo_json["features"]
-                for feature in features:
-                    geometry = feature["geometry"]
-                    coordinates = geometry["coordinates"]
-                    properties = feature["properties"]
+            # with open(track_file) as f:
+            #     geo_json = json.load(f)
+            #     features = geo_json["features"]
+            #     for feature in features:
+            #         geometry = feature["geometry"]
+            #         coordinates = geometry["coordinates"]
+            #         properties = feature["properties"]
 
-                    points.append([*coordinates, properties["elevation"]])
-                    self.coords = coordinates
+            #         points.append([*coordinates, properties["elevation"]])
+            #         self.coords = coordinates
+
+            with open(track_file + ".txt", 'r') as fin, open(track_file + "_commas_out.txt", 'w') as fout:
+                s = fin.readline()
+                for line in fin:
+                    s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
+                    fout.write(s)
+            df = pd.read_csv(track_file + "_commas_out.txt")
+            for i in range(df.shape[0]):
+                points.append([df.iloc[i, 1] + np.random.uniform(-.001, .001), df.iloc[i, 2] + np.random.uniform(-.001, .001), df.iloc[i, 3] + np.random.uniform(-.001, .001)])
         elif geo_json:
             features = geo_json["features"]
             for feature in features:
@@ -67,18 +76,17 @@ class Track:
         cmr = splines.CatmullRom(points, endconditions="closed")
         self.piece_lengths = []
         for i in range(len(cmr.grid) - 1):
-            self.piece_lengths += [self.__arc_length(
-                cmr, i, i+1)]
+            self.piece_lengths += [self.__arc_length(cmr, i, i+1)]
         self.track_length = sum(self.piece_lengths)
         self.t_len = self.track_length
 
-        fig = plt.figure(figsize=(10,6))
-        ax = fig.add_subplot(projection='3d')
+        # fig = plt.figure(figsize=(10,6))
+        # self.ax = fig.add_subplot(projection='3d')
         
-        ax.scatter3D(points[:, 0], points[:, 1], points[:, 2], c = 'r')
-        plot_spline_3d(cmr, ax=ax)
+        # ax.scatter3D(points[:, 0], points[:, 1], points[:, 2], c = 'r')
+        # plot_spline_3d(cmr, ax=self.ax)
 
-        cmr2 = sp.interpolate.Rbf(points[:, 0], points[:, 1], points[:, 2],smooth=5)
+        # cmr2 = sp.interpolate.Rbf(points[:, 0], points[:, 1], points[:, 2],smooth=5)
         # ax.plot_surface(x1, y2, Z,alpha=0.2)
         # trace = []
         # for t in np.linspace(start= 0, stop = self.track_length, retstep= 0.5):
@@ -96,7 +104,6 @@ class Track:
 
         # Determine ground level by taking average.
         self.ground_level = np.mean([point[2] for point in points])
-        print(points)
 
     #def get_standard_length_arr() 
     # PARAMS
@@ -158,6 +165,3 @@ class Track:
 if __name__ == "__main__":
     t = Track("./track2.json")
     cmr = t.cmr
-    print(t.track_length)
-    print(t.evaluate_cs(0), cmr.evaluate(0))
-    print(t.evaluate_cs(t.track_length - .000001), cmr.evaluate(cmr.grid[-1]))
