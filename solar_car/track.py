@@ -1,8 +1,14 @@
 import numpy as np
 import splines
 import json
-
+import plotly.express as px;
+from mpl_toolkits.mplot3d import axes3d
+import pandas as pd;
+import matplotlib.pyplot as plt
 from scipy.integrate import quad
+import scipy as sp
+import scipy.interpolate
+from solar_car.helper import plot_spline_3d
 
 
 class Track:
@@ -22,16 +28,25 @@ class Track:
     def __init__(self, track_file: str = None, geo_json: any = None) -> None:
         points = []
         if track_file:
-            with open(track_file) as f:
-                geo_json = json.load(f)
-                features = geo_json["features"]
-                for feature in features:
-                    geometry = feature["geometry"]
-                    coordinates = geometry["coordinates"]
-                    properties = feature["properties"]
+            # with open(track_file) as f:
+            #     geo_json = json.load(f)
+            #     features = geo_json["features"]
+            #     for feature in features:
+            #         geometry = feature["geometry"]
+            #         coordinates = geometry["coordinates"]
+            #         properties = feature["properties"]
 
-                    points.append([*coordinates, properties["elevation"]])
-                    self.coords = coordinates
+            #         points.append([*coordinates, properties["elevation"]])
+            #         self.coords = coordinates
+
+            with open(track_file + ".txt", 'r') as fin, open(track_file + "_commas_out.txt", 'w') as fout:
+                s = fin.readline()
+                for line in fin:
+                    s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
+                    fout.write(s)
+            df = pd.read_csv(track_file + "_commas_out.txt")
+            for i in range(df.shape[0]):
+                points.append([df.iloc[i, 1] + np.random.uniform(-.001, .001), df.iloc[i, 2] + np.random.uniform(-.001, .001), df.iloc[i, 3] + np.random.uniform(-.001, .001)])
         elif geo_json:
             features = geo_json["features"]
             for feature in features:
@@ -51,8 +66,7 @@ class Track:
         aspect_ratio = (max_lat - min_lat)/(max_lon - min_lon)
 
         # Scale points and convert to km
-        points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] -
-                                                              min_lat)/(max_lat - min_lat), point[2]] for point in points]
+        points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] - min_lat)/(max_lat - min_lat), point[2]] for point in points]
         points = np.array(points)
         points[:, 1] = points[:, 1]*aspect_ratio
         points = points*.65  # rough conversion to km from lat/lon
@@ -60,15 +74,29 @@ class Track:
 
         self.points = points
         cmr = splines.CatmullRom(points, endconditions="closed")
-
-        self.cmr = cmr
-
         self.piece_lengths = []
         for i in range(len(cmr.grid) - 1):
-            self.piece_lengths += [self.__arc_length(
-                cmr, i, i+1)]
+            self.piece_lengths += [self.__arc_length(cmr, i, i+1)]
         self.track_length = sum(self.piece_lengths)
         self.t_len = self.track_length
+
+        # fig = plt.figure(figsize=(10,6))
+        # self.ax = fig.add_subplot(projection='3d')
+        
+        # ax.scatter3D(points[:, 0], points[:, 1], points[:, 2], c = 'r')
+        # plot_spline_3d(cmr, ax=self.ax)
+
+        # cmr2 = sp.interpolate.Rbf(points[:, 0], points[:, 1], points[:, 2],smooth=5)
+        # ax.plot_surface(x1, y2, Z,alpha=0.2)
+        # trace = []
+        # for t in np.linspace(start= 0, stop = self.track_length, retstep= 0.5):
+        #     x, y, z = self.evaluate_cs(t)
+        #     trace.append[x, y, z]
+        # ax.plot3D(trace[:, 0], trace[:, 1], trace[:, 2])
+        plt.show()
+        # print(cmr.segments)
+        # ax.plot3D(cmr.segments[0], cmr.segments[1], cmr.segments[2])
+        self.cmr = cmr
 
         min_x, max_x, min_y, max_y = np.min(points[:, 0]), np.max(
             points[:, 0]), np.min(points[:, 1]), np.max(points[:, 1])
@@ -77,6 +105,7 @@ class Track:
         # Determine ground level by taking average.
         self.ground_level = np.mean([point[2] for point in points])
 
+    #def get_standard_length_arr() 
     # PARAMS
     # y1 = y'(x)
     # y2 = y''(x)
@@ -136,6 +165,3 @@ class Track:
 if __name__ == "__main__":
     t = Track("./track2.json")
     cmr = t.cmr
-    print(t.track_length)
-    print(t.evaluate_cs(0), cmr.evaluate(0))
-    print(t.evaluate_cs(t.track_length - .000001), cmr.evaluate(cmr.grid[-1]))

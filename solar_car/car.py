@@ -69,7 +69,8 @@ class Car:
         self.t = self.track.distance_to_t(self.dist)  # convert to km
 
         irradiance = self.weather.get_intensity(self.time)
-        solar_power = self.solar_array.step(irradiance)
+        # solar_power = self.solar_array.step(irradiance)
+        solar_power = self.solar_array.step() # time step is 1 second, so energy = power in this case
         solar_current_draw = solar_power / voltage
 
         total_draw = motors_current_draw - solar_current_draw
