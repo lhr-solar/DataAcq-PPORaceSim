@@ -93,7 +93,6 @@ class Track:
         #     x, y, z = self.evaluate_cs(t)
         #     trace.append[x, y, z]
         # ax.plot3D(trace[:, 0], trace[:, 1], trace[:, 2])
-        plt.show()
         # print(cmr.segments)
         # ax.plot3D(cmr.segments[0], cmr.segments[1], cmr.segments[2])
         self.cmr = cmr

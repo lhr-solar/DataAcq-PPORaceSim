@@ -12,7 +12,7 @@ conda create -n driver python=3.9.16
 conda activate driver
 
 conda install numpy=1.21.5  -y
-conda install tensorboard -y 
+conda install tensorboard -y
 conda install nomkl -y
 pip install stable-baselines3[extra]==2.1.0
 pip install gymnasium==0.29.1
@@ -28,26 +28,26 @@ You are now ready to run code
 ## Start training a new model
 
 ```python
-python new_train.py
+python main -n
 ```
 
 ## Train an existing model
 
 ```python
-python continue_train.py
+python main
 ```
 
 ## Testing a model
 
 ```python
-python play_latest.py
+python main -p
 ```
 
 # Contributing
 
 ###
 
-The env is currently located in solar_car_env.py. The car model is defined in solar_car. 
+The env is currently located in solar_car_env.py. The car model is defined in solar_car.
 
 # Appendix
 
