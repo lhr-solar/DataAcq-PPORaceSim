@@ -89,21 +89,6 @@ class Track:
         self.track_length = sum(self.piece_lengths)
         self.t_len = self.track_length
 
-        # fig = plt.figure(figsize=(10,6))
-        # self.ax = fig.add_subplot(projection='3d')
-        
-        # ax.scatter3D(points[:, 0], points[:, 1], points[:, 2], c = 'r')
-        # plot_spline_3d(cmr, ax=self.ax)
-
-        # cmr2 = sp.interpolate.Rbf(points[:, 0], points[:, 1], points[:, 2],smooth=5)
-        # ax.plot_surface(x1, y2, Z,alpha=0.2)
-        # trace = []
-        # for t in np.linspace(start= 0, stop = self.track_length, retstep= 0.5):
-        #     x, y, z = self.evaluate_cs(t)
-        #     trace.append[x, y, z]
-        # ax.plot3D(trace[:, 0], trace[:, 1], trace[:, 2])
-        # print(cmr.segments)
-        # ax.plot3D(cmr.segments[0], cmr.segments[1], cmr.segments[2])
         self.cmr = cmr
 
         min_x, max_x, min_y, max_y = np.min(points[:, 0]), np.max(
