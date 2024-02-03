@@ -7,7 +7,7 @@ with open('elevation_data.txt', 'r') as fin, open('elevation_data_commas_out.txt
     s = fin.readline()
     for line in fin:
         s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
-        print(s)
+        # print(s)
         fout.write(s)
 
 # this step is dependent on ensuring altitude is in meters in the text file
