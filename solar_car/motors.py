@@ -14,7 +14,7 @@ class Motors:
     braking_resistance = 0.1  # Ohms
     friction_resistance = 0.1  # Ohms
 
-    motor_acceleration = 12  # m/s^2
+    max_acceleration = 12  # m/s^2
     current_speed = 0  # m/s
     max_speed = 20  # m/s
 
@@ -42,19 +42,19 @@ class Motors:
             The distance traveled in this time step.
 
         """
-
+        # If both accelerating and braking simultaneously, current drawn is 0
         self.current_voltage = np.clip(voltage, 0, self.max_voltage)
         voltage_max_speed = (self.current_voltage /
                              self.max_voltage) * self.max_speed
 
         if self.current_speed == 0:
-            acc = self.motor_acceleration * gas
+            acc = self.max_acceleration * gas
         else:
-            acc = np.clip((1 - self.current_speed / self.max_speed) * gas * self.motor_acceleration, -
-                          self.motor_acceleration, self.motor_acceleration)
+            acc = np.clip((1 - self.current_speed / self.max_speed) * gas * self.max_acceleration, -
+                          self.max_acceleration, self.max_acceleration)
 
         self.current_current = np.abs(
-            acc) / self.motor_acceleration * self.max_current
+            acc) / self.max_acceleration * self.max_current
         self.current_speed = np.clip(
             self.current_speed + acc * self.time_step, 0, min(voltage_max_speed, physical_max_speed))
 

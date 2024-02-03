@@ -46,6 +46,7 @@ class Track:
                     fout.write(s)
             df = pd.read_csv(track_file + "_commas_out.txt")
             for i in range(df.shape[0]):
+                #slight variation in points for some randomness
                 points.append([df.iloc[i, 1] + np.random.uniform(-.001, .001), df.iloc[i, 2] + np.random.uniform(-.001, .001), df.iloc[i, 3] + np.random.uniform(-.001, .001)])
         elif geo_json:
             features = geo_json["features"]
@@ -62,14 +63,22 @@ class Track:
         # Determine aspect ratio for scaling
         xs = [point[0] for point in points]
         ys = [point[1] for point in points]
+        # calc
+        first_x = xs[0]
+        first_y = ys[0]
+        for i in range(len(xs)):
+            xs[i] = (xs[i] - first_x) * 111.1 * np.cos(np.pi * ys[i]/180)
+            ys[i] = (ys[i] - first_y) * 111.1
+
         min_lat, max_lat, min_lon, max_lon = min(ys), max(ys), min(xs), max(xs)
-        aspect_ratio = (max_lat - min_lat)/(max_lon - min_lon)
+        # aspect_ratio = (max_lat - min_lat)/(max_lon - min_lon)
 
         # Scale points and convert to km
-        points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] - min_lat)/(max_lat - min_lat), point[2]] for point in points]
+        # points = [[(point[0] - min_lon)/(max_lon - min_lon), (point[1] - min_lat)/(max_lat - min_lat), point[2]] for point in points]
+        points = [[xs[i], ys[i], points[i][2]] for i in range(len(points))]
         points = np.array(points)
-        points[:, 1] = points[:, 1]*aspect_ratio
-        points = points*.65  # rough conversion to km from lat/lon
+        # points[:, 1] = points[:, 1]*aspect_ratio # comment out if needed
+        # points = points*.65  # rough conversion to km from lat/lon
         # ^- conversion not accurate, maybe an issue the points. Should be .4 multiple, but the track would too short then
 
         self.points = points
