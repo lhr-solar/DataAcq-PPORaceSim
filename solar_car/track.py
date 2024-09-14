@@ -39,11 +39,11 @@ class Track:
             #         points.append([*coordinates, properties["elevation"]])
             #         self.coords = coordinates
 
-            with open(track_file + ".txt", 'r') as fin, open(track_file + "_commas_out.txt", 'w') as fout:
-                s = fin.readline()
-                for line in fin:
-                    s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
-                    fout.write(s)
+            # with open(track_file + ".txt", 'r') as fin, open(track_file + "_commas_out.txt", 'w') as fout:
+            #     s = fin.readline()
+            #     for line in fin:
+            #         s = line.replace('   ', ',').replace("  ", ",").rstrip(",")
+            #         fout.write(s)
             df = pd.read_csv(track_file + "_commas_out.txt")
             for i in range(df.shape[0]):
                 #slight variation in points for some randomness

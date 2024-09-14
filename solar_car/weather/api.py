@@ -39,7 +39,7 @@ class WeatherApi:
         self.API_KEY = API_KEY
 
     def get_weather_offline(self):
-        with open("weather_data/weather.json", "r+") as outfile:
+        with open("weather_data/weather.json", "r") as outfile:
             file = json.loads(outfile.read())
             weather = WeatherInterface(
                 file, file["beginTime"], file["endTime"])

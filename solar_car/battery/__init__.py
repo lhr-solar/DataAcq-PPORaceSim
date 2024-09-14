@@ -47,7 +47,7 @@ class Battery:
             output_variables=output_variables,
             inputs=None,
             initial_soc=1,
-            nproc=os.cpu_count(),
+            nproc=0,
             dt=self.time_step,
             setup_only=True,
         )

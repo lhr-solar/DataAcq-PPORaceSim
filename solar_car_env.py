@@ -33,6 +33,8 @@ class SolarCarEnv(gym.Env):
         self.track = Track(track_file= "elevation_data\elevation_data")
 
     def __init__(self, render_mode, time_step_duration=10):
+        super(SolarCarEnv, self).__init__()
+        
         self.render_mode = render_mode
         self.time_step_duration = time_step_duration
 
@@ -69,7 +71,7 @@ class SolarCarEnv(gym.Env):
         self.soc = 0
         self.current = 0
         if render_mode == "human":
-            self.fig = plt.figure(figsize=(10,6), layout = 'constrained')
+            self.fig = plt.figure(figsize=(10,6))
             self.ax = self.fig.add_subplot(3, 3, (1, 6), projection='3d')
             coords = self.car.track.evaluate_cs(self.car.dist)
             self.currentPoint = self.ax.scatter(*coords, marker='*', color='red')
@@ -151,7 +153,7 @@ class SolarCarEnv(gym.Env):
             self.dist_array = [self.distance]
             self.vel_array = [self.velocity]
 
-        self.car.reset(self.track)
+        self.car = Car(self.track, self.time, self.time_step_duration)
 
         return observation, info
 
@@ -192,7 +194,7 @@ class SolarCarEnv(gym.Env):
 
     def render(self):
         if self.render_mode == "human":
-            return self._render_frame(self)
+            return self._render_frame()
 
     def _render_frame(self):
         coords = self.car.track.evaluate_cs(self.car.dist)
@@ -213,6 +215,7 @@ class SolarCarEnv(gym.Env):
         plt.pause(0.01)
 
     def close(self):
+
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()

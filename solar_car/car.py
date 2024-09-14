@@ -25,10 +25,16 @@ class Car:
         self.time = self.start_time
         self.time_step = time_step
 
-        self.weather = Weather(*coords, start_time)
-        self.solar_array = SolarArray()
-        self.battery = Battery(time_step)
-        self.motors = Motors(time_step)
+        try:
+            self.weather = Weather(*coords, start_time)
+            self.solar_array = SolarArray()
+            self.battery = Battery(time_step)
+            self.motors = Motors(time_step)
+        except Exception as e:
+            logging.fatal(f'Car failed to initialize: {e}')
+            self.okay = False
+            return
+        
         self.track = track
         self.dist = 0
         self.t = 0
