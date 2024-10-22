@@ -1,7 +1,7 @@
 from fixed_gym import *
 import numpy as np
 from typing import Optional
-import datetime
+import datetime, zoneinfo
 import matplotlib.pyplot as plt
 from helper import plot_spline_3d
 
@@ -30,7 +30,7 @@ class SolarCarEnv(gym.Env):
         #     } for _ in range(10)]
         # }
         #self.track = Track(geo_json=geo_json)
-        self.track = Track(track_file= "elevation_data\elevation_data")
+        self.track = Track(track_file= "elevation_data/elevation_data")
 
     def __init__(self, render_mode, time_step_duration=10):
         super(SolarCarEnv, self).__init__()
@@ -54,7 +54,7 @@ class SolarCarEnv(gym.Env):
         self.clock = None
         self.size = 5
 
-        self.start_time = datetime.datetime(2023, 1, 10, 9, 0, 0).timestamp()
+        self.start_time = datetime.datetime(2023, 1, 10, 9, 0, 0, 0, tzinfo=zoneinfo.ZoneInfo("America/Chicago")).timestamp()
         self.time = self.start_time
 
         self.generate_track()
@@ -72,27 +72,28 @@ class SolarCarEnv(gym.Env):
         self.current = 0
         if render_mode == "human":
             self.fig = plt.figure(figsize=(10,6))
+            self.fig.suptitle("Solar Car Simulation")
             self.ax = self.fig.add_subplot(3, 3, (1, 6), projection='3d')
             coords = self.car.track.evaluate_cs(self.car.dist)
             self.currentPoint = self.ax.scatter(*coords, marker='*', color='red')
-            self.time_array = [self.time]
+            self.time_array = [0]
             # Distance graph
             self.distAx = self.fig.add_subplot(3, 3, (7))
             self.dist_array = [self.distance]
             self.distAx.plot(self.time_array, self.dist_array)
-            self.distAx.set_title('Distance')
+            self.distAx.set_xlabel('Time')
+            self.distAx.set_ylabel('Distance')
             # Velocity Graph
-            self.velAx = self.fig.add_subplot(3, 3, (8))
+            self.velAx = self.fig.add_subplot(3, 3, (8), sharex=self.distAx)
             self.vel_array = [self.velocity]
             self.velAx.plot(self.time_array, self.vel_array)
-            self.velAx.set_title('Velocity')
+            self.velAx.set_ylabel("Velocity")
             # Battery Graph
-            self.batteryAx = self.fig.add_subplot(3, 3, (9))
+            self.batteryAx = self.fig.add_subplot(3, 3, (9), sharex=self.distAx)
             self.battery_array = [self.soc]
             self.batteryAx.plot(self.time_array, self.battery_array)
-            self.batteryAx.set_title('Battery')
+            self.batteryAx.set_ylabel('Battery %') 
 
-    
             plot_spline_3d(self.track.cmr, ax=self.ax)
             plt.ion()
             plt.show()
@@ -149,7 +150,7 @@ class SolarCarEnv(gym.Env):
         if self.render_mode == "human":
             #Update graph data
             self.battery_array = [self.soc]
-            self.time_array = [self.time]
+            self.time_array = [0]
             self.dist_array = [self.distance]
             self.vel_array = [self.velocity]
 
@@ -200,7 +201,8 @@ class SolarCarEnv(gym.Env):
         coords = self.car.track.evaluate_cs(self.car.dist)
         self.currentPoint.remove()
         self.currentPoint = self.ax.scatter(*coords, marker='*', color='red')
-        self.time_array.append(self.time)
+        # print(self.time, self.start_time, self.time - self.start_time)
+        self.time_array.append(self.time - self.start_time)
         self.dist_array.append(self.distance)
         self.vel_array.append(self.velocity)
         self.battery_array.append(self.soc)
@@ -212,7 +214,7 @@ class SolarCarEnv(gym.Env):
         self.batteryAx.plot(self.time_array, self.battery_array)
 
         self.ax.legend()
-        plt.pause(0.01)
+        plt.pause(1/60)
 
     def close(self):
 
