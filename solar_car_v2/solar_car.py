@@ -38,6 +38,7 @@
 # Chrono imports
 import pychrono as chrono
 from pychrono import vehicle as veh
+from pychrono import irrlicht
 
 # Gym chrono imports
 # Custom imports
@@ -48,7 +49,7 @@ import numpy as np
 
 # Gymnasium imports
 import gymnasium as gym
-from .track import generate_track, generate_terrain
+from .track import generate_path, generate_terrain
 
 
 class SolarCar(ChronoBaseEnv):
@@ -158,10 +159,12 @@ class SolarCar(ChronoBaseEnv):
             options: Options for the simulation (dictionary)
         """
 
-        path = generate_track()
+        self.path = generate_path()
 
         self.vehicle = veh.WheeledVehicle(self.vehicle_file, chrono.ChContactMethod_NSC)
-        self.vehicle.Initialize(chrono.ChCoordsysd(self.init_pos))
+        starting_point = self.path.Eval(0, 0)
+        starting_point.z = 0.5
+        self.vehicle.Initialize(chrono.ChCoordsysd(starting_point))
         # vehicle.GetChassis().SetFixed(True)
         self.vehicle.SetChassisVisualizationType(veh.VisualizationType_PRIMITIVES)
         self.vehicle.SetChassisRearVisualizationType(veh.VisualizationType_PRIMITIVES)
@@ -239,13 +242,15 @@ class SolarCar(ChronoBaseEnv):
             self.vehicle.Synchronize(time, driver_inputs, self.terrain)
             self.terrain.Synchronize(time)
             if self._render_setup:
-                self.vis.Synchronize(time, driver_inputs)
+                pass
+                # self.vis.Synchronize(time, driver_inputs)
 
             self.driver.Advance(self.step_size)
             self.vehicle.Advance(self.step_size)
             self.terrain.Advance(self.step_size)
             if self._render_setup:
-                self.vis.Advance(self.step_size)
+                pass
+                # self.vis.Advance(self.step_size)
 
             self.vehicle.GetSystem().DoStepDynamics(self.step_size)
 
@@ -272,14 +277,19 @@ class SolarCar(ChronoBaseEnv):
         if self.render_mode == "human":
             if self._render_setup == False:
                 self.vis = veh.ChWheeledVehicleVisualSystemIrrlicht()
+                self.vis = irrlicht.ChVisualSystemIrrlicht(
+                    self.vehicle.GetSystem(),
+                    chrono.ChVector3d(0, 0, 150),
+                    chrono.ChVector3d(0, 0, 0),
+                )
                 self.vis.SetWindowTitle("HMMWV JSON specification")
                 self.vis.SetWindowSize(1280, 1024)
-                self.vis.SetChaseCamera(chrono.ChVector3d(0.0, 0.0, 1.75), 6.0, 0.5)
+
                 self.vis.Initialize()
                 # self.vis.AddLogo(chrono.GetChronoDataFile("logo_pychrono_alpha.png"))
                 self.vis.AddLightDirectional()
-                self.vis.AddSkyBox()
-                self.vis.AttachVehicle(self.vehicle)
+                # self.vis.AddSkyBox()
+                # self.vis.AttachVehicle(self.vehicle)
 
                 self._render_setup = True
             self.vis.BeginScene()
@@ -297,7 +307,7 @@ class SolarCar(ChronoBaseEnv):
         scale = 200
 
         # Distance traveled down the lane is good
-        reward = self.vehicle.GetChassis().GetPos().x * scale
+        reward = 0
 
         return reward
 
