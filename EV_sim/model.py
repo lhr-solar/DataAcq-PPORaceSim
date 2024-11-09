@@ -13,18 +13,23 @@ from collections.abc import Callable
 import numpy as np
 import numpy.typing
 
-from EV_sim.ev import EV
+from EV_sim.ev import EV #EV class in ev.py
 from EV_sim.extern_conditions import ExternalConditions
 from EV_sim.drivecycles import DriveCycle
 from EV_sim.utils.constants import PhysicsConstants
 from EV_sim.sol import Solution
 from EV_sim.utils.timer import sol_timer
 
+from ..solar_car_v2.Battery import Battery
 
 class VehicleDynamics:
     """
     VehicleDynamics simulates the demanded power and current from the batter pack.
     """
+    # Drag
+    
+    air_density = 1.225  # kg/m^3
+    C_r = 0.00175 #unitless from the code by philip + ishan
 
     def __init__(self, ev_obj: EV, drive_cycle_obj: DriveCycle, external_condition_obj: ExternalConditions) -> None:
         """
@@ -97,16 +102,51 @@ class VehicleDynamics:
         return 0.5 * air_density * aero_frontal_area * C_d * (prev_speed ** 2)
 
     @staticmethod
+    def aero_F_power(air_density: float, prev_speed: float, aero_frontal_area: float, C_d: float) -> float:
+        """
+        Calculates the power consumed by aero in N
+        :param air_density: External air density, kg/m^3
+        :param aero_frontal_area: Vehicle frontal area, m^2
+        :param C_d: Drag coefficient, unit-;ess
+        :param prev_speed: Speed at the previous time step, m/s
+        :return: (float) aerodynamic drag, N
+        """
+        return 0.5 * air_density * (prev_speed**3) * aero_frontal_area * C_d
+
+    @staticmethod
     def roll_grade_F(max_veh_mass: float, gravity_acc: float, grade_angle: float) -> float:
         """
         Calculates the rolling grade force.
-        :param C_r: rolling coefficient, unit-less
         :param max_veh_mass: max. vehicle mass, kg
         :param gravity_acc: acceleration of gravity, 9.81 g/m^2
         :param grade_angle: grade_angle, rad
         :return:  (float) rolling grade force, N
         """
         return max_veh_mass * gravity_acc * np.sin(grade_angle)
+    
+    @staticmethod
+    def rolling_resistance(max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float) -> float:
+        """
+        Calculates the rolling resistance (friction between road and tires)
+        :param C_r: rolling coefficient, unit-less
+        :param max_veh_mass: max. vehicle mass, kg
+        :param gravity_acc: acceleration of gravity, 9.81 g/m^2
+        :param prev_speed: Speed at the previous time step, m/s
+        :return:  (float) rolling resistance force, N
+        """
+        return C_r * (1 + (prev_speed/3.6)/161)* max_veh_mass * gravity_acc
+
+    @staticmethod
+    def rolling_resistance_power(max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float)-> float:
+        """
+        Calculates power consumed by rolling resistance (friction between road and tires)
+        :param C_r: rolling coefficient, unit-less
+        :param max_veh_mass: max. vehicle mass, kg
+        :param gravity_acc: acceleration of gravity, 9.81 g/m^2
+        :param prev_speed: Speed at the previous time step, m/s
+        :return:  (float) rolling resistance force, N
+        """
+        return 0.278* C_r * (1 + (prev_speed/3.6)/161)* max_veh_mass * gravity_acc * (prev_speed/3.6)
 
     @staticmethod
     def demand_torque(des_acc_F: float, aero_F: float, roll_grade_F: float, road_F: float, wheel_radius: float,
@@ -178,7 +218,7 @@ class VehicleDynamics:
         sol.des_acc[k] = VehicleDynamics.desired_acc(desired_speed=self.des_speed[k], prev_speed=prev_speed,
                                                      current_time=self.DriveCycle.t[k], prev_time=prev_time)
         sol.des_acc_F[k] = VehicleDynamics.desired_acc_F(equivalent_mass=self.EV.equiv_mass, desired_acc=sol.des_acc[k])
-        sol.aero_F[k] = VehicleDynamics.aero_F(self.ExtCond.rho, self.EV.A_front, self.EV.C_d, prev_speed)
+        sol.aero_F[k] = VehicleDynamics.aero_F(self.air_density, self.EV.A_front, self.EV.C_d, prev_speed)
         sol.roll_grade_F[k] = VehicleDynamics.roll_grade_F(max_veh_mass=self.EV.max_mass,
                                                            gravity_acc=PhysicsConstants.g,
                                                            grade_angle=self.ExtCond.road_grade_angle)
@@ -232,7 +272,8 @@ class VehicleDynamics:
             sol.battery_demand[k] = sol.battery_demand[k] + sol.limit_power[k] * self.EV.drive_train.eff
         sol.current[k] = sol.battery_demand[k] * 1000 / self.EV.pack.pack_V_nom
         sol.cell_current[k] = sol.current[k] / self.EV.pack.Np
-        sol.battery_SOC[k] = prev_SOC - sol.current[k] * (self.DriveCycle.t[k] - prev_time)
+        sol.battery_SOC[k] = Battery.get_soc()
+        #sol.battery_SOC[k] = prev_SOC - sol.current[k] * (self.DriveCycle.t[k] - prev_time)
 
     def __repr__(self):
         return f"VehicleDynamics({self.EV}, {self.DriveCycle}, {self.ExtCond})"

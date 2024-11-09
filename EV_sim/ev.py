@@ -12,7 +12,11 @@ __copyright__ = "Copyright 2023 by EV_sim. All rights reserved."
 
 import os
 from dataclasses import dataclass, field
+
+from pychrono import vehicle as veh
 from typing import Optional
+import json
+
 
 import numpy as np
 import pandas as pd
@@ -56,23 +60,85 @@ class ACInductionMotor:
 
         self.P_max = 2 * np.pi * self.L_max * self.RPM_r / 60000 # max motor power, kW
 
+    
 
 @dataclass
 class Wheel:
     r: float # wheel radius
     I: float # wheel inertia
+    def __init__(self):
+        self.wheel_file = veh.GetDataFile("hmmwv/HMMWV_Wheel.json")
+        self.wheel = None
+        self.wheel.load_data()
+    
+    def load_data(self):
+        file = open(self.wheel_file, 'r')
+        data = json.load(file)
+
+        wheel_data = data.get("Visualization", {})
+
+        self.r = wheel_data.get("Radius")
+        inertia = (data.get("Inertia"))
+        self.I = sum(inertia)
+        
+        self.__post_init__()
 
     def __post_init__(self):
         if not isinstance(self.r, float):
             raise TypeError("Wheel radius needs to be a float.")
         if not isinstance(self.I, float):
             raise TypeError("Wheel inertia needs to be a float.")
+        
+@dataclass
+class Chassis:
+    m: float # chassis mass
+    def __init__(self):
+        self.chassis_file = veh.GetDataFile("hmmwv/HMMWV_Chassis.json")
+        self.chassis = None
+        self.chassis.load_data()
+    
+    def load_data(self):
+        file = open(self.chassis_file, 'r')
+        data = json.load(file)
+
+        chassis_data = data.get("Components", {})
+
+        self.m = chassis_data.get("Mass")
+        self.a_front = data.get("Area").get("Frontal Area")
+        self.payload_capacity = chassis_data.get("Payload Capacity")
+        
+        self.__post_init__()
+
+    def __post_init__(self):
+        if not isinstance(self.m, float):
+            raise TypeError("Chassis mass needs to be a float.")
 
 
 @dataclass()
 class Gearbox:
     N: float # gear box ratio
     I: float # gearbox inertia
+    
+    def __init__(self):
+        self.gearbox_file = veh.GetDataFile("hmmwv/HMMWV_AutomaticTransmissionShafts.json")
+        self.gearbox = None
+        self.gearbox.load_data()
+    
+    def load_data(self):
+        file = open(self.gearbox_file, 'r')
+        data = json.load(file)
+
+        gearbox_data = data.get("Gear Box", {})
+
+        self.N = gearbox_data.get("Forward Gear Ratios")
+
+        t_blockinertia = data.get("Transmission Block Inertia", 0)
+        input_inertia = data.get("Input Shaft Inertia", 0)
+        m_shaftinertia = data.get("Motorshaft Inertia", 0)
+        d_shaftinertia = data.get("Driveshaft Inertia", 0)
+        self.I = t_blockinertia + input_inertia + m_shaftinertia + d_shaftinertia
+        
+        self.__post_init__()
 
     def __post_init__(self):
         if not isinstance(self.N, float):
@@ -278,14 +344,20 @@ class EVFromDatabase(EV):
         del df_basicinfo
 
         df_wheel = self.parse_wheel_info(file_dir=database_dir)
-        wheel_radius = float(df_wheel["radius [m]"])
-        wheel_inertia = float(df_wheel["inertia [kg/m2]"])
+        wheel = Wheel()
+        wheel_radius = wheel.r
+        wheel_inertia = wheel.I
+        #wheel_radius = float(df_wheel["radius [m]"])
+        #wheel_inertia = float(df_wheel["inertia [kg/m2]"])
         self.C_r = float(df_wheel["roll_coeff"]) # rolling coefficient, unit-less
         del df_wheel
 
         df_drivetrain = self.parse_drivetrain_info(file_dir=database_dir)
-        gearbox_ratio = float(df_drivetrain["gear_ratio"]) # motor rpm / wheel rpm, unit-less
-        gearbox_inertia = float(df_drivetrain["gear_inertia [kg/m2]"])
+        gearbox = Gearbox()
+        gearbox_ratio = gearbox.N
+        gearbox_inertia = gearbox.I
+        #gearbox_ratio = float(df_drivetrain["gear_ratio"]) # motor rpm / wheel rpm, unit-less
+        #gearbox_inertia = float(df_drivetrain["gear_inertia [kg/m2]"])
         inverter_eff = float(df_drivetrain["inverter_eff"])
         frac_regen_torque = float(df_drivetrain["frac_regen_torque"])
         dt_eff = float(df_drivetrain["eff"])
@@ -309,10 +381,14 @@ class EVFromDatabase(EV):
 
         df_vehicle = self.parse_veh_info(file_dir=database_dir)
         C_d = float(df_vehicle["C_d"]) # drag coefficient, unit-less
-        A_front = float(df_vehicle["frontal_area [m2]"]) # vehicle frontal area, m^2
-        m = float(df_vehicle["mass [kg]"]) # vehicle mass, kg
-        payload_capacity = float(df_vehicle["payload_cap [kg]"]) # vehicle payload capacity, kg
-        overhead_power = float(df_vehicle["overhead_power [W]"]) # vehicle overhear power, W
+        chassis = Chassis()
+        m = chassis.m
+        A_front = chassis.a_front
+        payload_capacity = chassis.payload_capacity
+        #A_front = float(df_vehicle["frontal_area [m2]"]) # vehicle frontal area, m^2
+        #payload_capacity = float(df_vehicle["payload_cap [kg]"]) # vehicle payload capacity, kg --> maximum weight a vehicle can carry
+        overhead_power = float(df_vehicle["overhead_power [W]"]) # vehicle overhear power, W --> power consumed by vehicle's auxillary systems
+        #overhead_power is basically 0? lol our one fan in the car, poor driver :(
         del df_vehicle
 
         df_cell = self.parse_cell_info(file_dir=database_dir)

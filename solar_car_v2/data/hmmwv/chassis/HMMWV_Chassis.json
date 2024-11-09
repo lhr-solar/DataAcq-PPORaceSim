@@ -13,7 +13,8 @@
      "Mass":                2086.52,
      "Moments of Inertia":  [1078.52, 2955.66, 3570.20],
      "Products of Inertia": [0, 0, 0],
-     "Void":                false
+     "Void":                false, 
+     "Payload Capacity":    3000
    }
   ],
 
@@ -24,6 +25,11 @@
   },
   
   "Rear Connector Location": [ -2.5, 0, -0.25 ],
+
+  "Area": 
+  {
+    "Frontal Area": [1.105]
+  },
 
   "Visualization":
   {

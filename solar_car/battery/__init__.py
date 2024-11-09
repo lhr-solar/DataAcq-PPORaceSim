@@ -12,7 +12,8 @@ parameter_values = pybamm.ParameterValues("Chen2020")
 
 class Battery:
     """
-    The battery class is the battery of the solar car. It contains the battery model and the battery manager. It modifies PyBaMM and liionpack to work on a step by step basis.
+    The battery class is the battery of the solar car. It contains the battery model and the battery manager. 
+    It modifies PyBaMM and liionpack to work on a step by step basis.
 
     Parameters
     ----------

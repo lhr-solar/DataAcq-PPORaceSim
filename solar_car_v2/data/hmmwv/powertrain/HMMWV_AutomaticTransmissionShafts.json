@@ -27,10 +27,12 @@
   },
 
   "Gear Box": {
-    "Forward Gear Ratios": [ 0.2, 0.4, 0.8 ],
-    "Reverse Gear Ratio": -0.1,
-    "Upshift RPM": 2500,
-    "Downshift RPM": 1200,
-    "Shift Latency": 1.0
+    "Reverse Gear Ratio": -0.04,
+    "Forward Gear Ratios": [
+      0.07
+    ],
+    "Shift Points Map RPM": [
+      [ 0, 3000 ]
+    ]
   }
 }

@@ -51,6 +51,9 @@ import numpy as np
 import gymnasium as gym
 from .track import generate_path, generate_terrain
 
+#Array and battery
+from .Battery import Battery
+from ..PVSource.PVCell.PVCell import PVCellNonideal
 
 class SolarCar(ChronoBaseEnv):
     max_speed = 97.0
@@ -128,11 +131,15 @@ class SolarCar(ChronoBaseEnv):
         self.terrain = None
         self.speed_controller = None
         self.vis = None
+        self.array = None
+        self.battery = None
+        self.prev_SOC = 0
         
         # Array Variables???
         # Irradiance, Temperature, Wind, Voltage, Current, Power
         # Each panel: reference irradiance, open-circuit voltage, short-circuit current, and ideality factors
         # Efficiency of the PV module, 
+
         
         # ---------------------------------
         # Gym Environment variables
@@ -193,6 +200,12 @@ class SolarCar(ChronoBaseEnv):
         self.vehicle.GetSystem().SetCollisionSystemType(
             chrono.ChCollisionSystem.Type_BULLET
         )
+
+        self.steps = 0
+
+        self.array = PVCellNonideal()
+        self.battery = Battery(self.step_size)
+
 
         # Create the terrain, we probably want the terrain to match the path
         # self.terrain = veh.RigidTerrain(
@@ -266,6 +279,15 @@ class SolarCar(ChronoBaseEnv):
         self.observation = self.get_observation()
         # Get reward
         self.reward = self.get_reward()
+
+        #energy array gets
+        self.energy = self.array.step()
+        voltage = 0
+        current = self.array.getCurrent() * voltage * self.step_size
+        self.battery.set_draw(current)
+        self.battery.step()
+        self.soc = self.battery.get_soc()
+
         # Check if we are done
         self.is_terminated()
         self.is_truncated()
@@ -412,3 +434,10 @@ class SolarCar(ChronoBaseEnv):
 
         # For not just the priveledged of the rover
         return observation
+
+
+
+
+
+
+
