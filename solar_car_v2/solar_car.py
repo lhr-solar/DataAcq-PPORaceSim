@@ -111,8 +111,9 @@ class SolarCar(ChronoBaseEnv):
         self.rigidterrain_file = veh.GetDataFile("terrain/RigidPlane.json")
 
         # HMMWV specification files (vehicle, powertrain, and tire models)
+        
         self.vehicle_file = veh.GetDataFile("hmmwv/vehicle/HMMWV_Vehicle.json")
-        self.engine_file = veh.GetDataFile("hmmwv/powertrain/HMMWV_EngineShafts.json")
+        self.engine_file = veh.GetDataFile("gator/json/GATOR_EngineSimple.json") #we'll figure it out
         self.transmission_file = veh.GetDataFile(
             "hmmwv/powertrain/HMMWV_AutomaticTransmissionShafts.json"
         )
@@ -127,7 +128,12 @@ class SolarCar(ChronoBaseEnv):
         self.terrain = None
         self.speed_controller = None
         self.vis = None
-
+        
+        # Array Variables???
+        # Irradiance, Temperature, Wind, Voltage, Current, Power
+        # Each panel: reference irradiance, open-circuit voltage, short-circuit current, and ideality factors
+        # Efficiency of the PV module, 
+        
         # ---------------------------------
         # Gym Environment variables
         # ---------------------------------
@@ -159,7 +165,7 @@ class SolarCar(ChronoBaseEnv):
             options: Options for the simulation (dictionary)
         """
 
-        self.path = generate_path()
+        self.path, self.points, self.distances = generate_path()
 
         self.vehicle = veh.WheeledVehicle(self.vehicle_file, chrono.ChContactMethod_NSC)
         starting_point = self.path.Eval(0, 0)
@@ -194,13 +200,13 @@ class SolarCar(ChronoBaseEnv):
         # )
         # self.terrain.Initialize()
 
-        self.terrain = generate_terrain(self.vehicle.GetSystem(), path)
+        self.terrain = generate_terrain(self.vehicle.GetSystem(), self.path)
         self.terrain.Initialize()
 
         # We should make the path more complex here, but this is fine for now
         self.driver = veh.ChPathFollowerDriver(
             self.vehicle,
-            path,
+            self.path,
             "my_path",
             0,
         )
@@ -304,10 +310,44 @@ class SolarCar(ChronoBaseEnv):
         Returns:
             float: Reward for the current step
         """
-        scale = 200
+        #scale = 200
+        #Get current position
+        pos = self.vehicle.GetChassis().GetPos()
+        
+        #Use waypoints??
+        points = np.array(points)
+        tracker = chrono.ChBezierCurveTracker()
 
-        # Distance traveled down the lane is good
-        reward = 0
+        # # (closest_point - pos).Length() - euclidean length in context of ChVector class
+        # distance = pos.DistanceTo(closest_point)
+        # # distance = (closest_point - points[-1]).Length()
+        closest_point = chrono.ChVector()
+        tracker.CalcClosestPoint(pos, closest_point)
+
+        closest_point = lambda ch_vector: np.array([closest_point.x, closest_point.y, closest_point.z])
+        index = np.where(np.all(points == closest_point, axis=1))[0][0]
+        distance = self.distances[index-1]
+
+        #check if closest point is behind us
+        tangent = self.path.Eval(index, 0)
+        direction = (closest_point - pos).Normalized()
+        dot = direction.Dot(tangent)
+        if dot < 0:
+            #Behind us
+            distance += (closest_point - points[index]).Length()
+        else:
+            distance -= (closest_point - points[index]).Length()
+        
+
+        reward = distance
+
+        # turn closest_point into a np vector to find index
+        # closest_point = lambda ch_vector: np.array([closest_point.x, closest_point.y, closest_point.z])
+
+        #index = np.where(np.all(points == closest_point, axis=1))
+
+        # for i in range(index, len(points)-1):
+        #     distance
 
         return reward
 
@@ -370,5 +410,5 @@ class SolarCar(ChronoBaseEnv):
         self.vehicle_pos = pos
         observation[0] = pos.x
 
-        # For not just the priveledged  of the rover
+        # For not just the priveledged of the rover
         return observation

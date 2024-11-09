@@ -9,7 +9,7 @@
 
   "Axles": [
     {
-      "Suspension Input File": "hmmwv/suspension/HMMWV_DoubleWishboneFront.json",
+      "Suspension Input File": "hmmwv/suspension/Upper_WishBone.json",
       "Suspension Location": [ 1.688965, 0, 0 ],
       "Steering Index": 0,
       "Left Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
@@ -19,7 +19,7 @@
     },
 
     {
-      "Suspension Input File": "hmmwv/suspension/HMMWV_DoubleWishboneRear.json",
+      "Suspension Input File": "hmmwv/suspension/Lower_WishBone.json",
       "Suspension Location": [ -1.688965, 0, 0 ],
       "Left Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
       "Right Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
