@@ -6,7 +6,8 @@ import liionpack as lp
 import pybamm
 import numpy as np
 from liionpack import CasadiManager
-from PVSource.PVCell.PVCellNonideal import PVCellNonideal
+from Array import ThreeParamCell
+from getweather import get_irradiance
 
 
 parameter_values = pybamm.ParameterValues("Chen2020")
@@ -22,13 +23,24 @@ class Battery:
     time_step : float, optional
         The time step length of the simulation in seconds. The default is 1.0.
     """
-    pv_model = PVCellNonideal()
+    pv_model = ThreeParamCell(params = {
+        "ref_irrad": 1000.0,  # W/m^2
+        "ref_temp": 298.15,  # Kelvin
+        "ref_voc": 0.721,  # Volts
+        "ref_isc": 6.15,  # Amps
+        "fit_fwd_ideality_factor": 2,
+        "fit_rev_ideality_factor": 1,
+        "fit_rev_sat_curr": 1 * 10**-5,
+    })
+
+
+    
     num_cells = 10  # Number of cells in the array
-    voltage = 18  # Operating voltage (V)
-    irradiance = 800  # Irradiance in W/m²
+    voltage = 0.647  # mpp(V) from powergen data should be updating based on time though
+    irradiance = get_irradiance()  # from get wehather
     temperature = 25  # Temperature in Celsius
     time_period = 3600  # Time period in seconds (e.g., 1 hour)
-    current_draw = 0
+    current_draw = 1.2 #mpp(I) from powergen data
     _step = 1
 
     def __init__(self, time_step: float):
@@ -70,6 +82,11 @@ class Battery:
 
     def set_draw(self):
         self.current_draw = self.pv_model.getCurrent(voltage=self.voltage, irradiance=self.irradiance, temperature=self.temperature)
+
+    def update(self, voltage, irradiance, temperature):
+        self.voltage = voltage
+        self.irradiance = irradiance
+        self.temperature = temperature
 
     def step(self):
         try:

@@ -54,6 +54,7 @@ from .track import generate_path, generate_terrain
 #Array and battery
 from .Battery import Battery
 from ..PVSource.PVCell.PVCell import PVCellNonideal
+from getweather import Weather
 
 class SolarCar(ChronoBaseEnv):
     max_speed = 97.0
@@ -103,6 +104,7 @@ class SolarCar(ChronoBaseEnv):
     Number of steps per action. \n
     """
 
+
     def __init__(self, render_mode="human"):
         ChronoBaseEnv.__init__(self, render_mode)
 
@@ -134,6 +136,8 @@ class SolarCar(ChronoBaseEnv):
         self.array = None
         self.battery = None
         self.prev_SOC = 0
+
+        
         
         # Array Variables???
         # Irradiance, Temperature, Wind, Voltage, Current, Power
@@ -163,6 +167,9 @@ class SolarCar(ChronoBaseEnv):
         self._render_setup = False
         # Flag to count success while testing
         self._success = False
+
+
+        
 
     def reset(self, seed=None, options=None):
         """Reset the environment to its initial state -> Set up for standard gym API
@@ -205,6 +212,7 @@ class SolarCar(ChronoBaseEnv):
 
         self.array = PVCellNonideal()
         self.battery = Battery(self.step_size)
+        self.weather = Weather(self.step_size)
 
 
         # Create the terrain, we probably want the terrain to match the path
@@ -279,14 +287,19 @@ class SolarCar(ChronoBaseEnv):
         self.observation = self.get_observation()
         # Get reward
         self.reward = self.get_reward()
+        
+        self.weather.update()
 
         #energy array gets
-        self.energy = self.array.step()
-        voltage = 0
-        current = self.array.getCurrent() * voltage * self.step_size
-        self.battery.set_draw(current)
+        self.power = self.weather.dc_power()
+        self.current = self.array.get_current(voltage = 0.5, irradiance = self.weather.get_irradiance(), temperature = self.weather.get_attribute("Temperature")) 
+        self.battery.update(self.voltage, self.weather.get_irridiance(), self.weather.get_attribute("Temperature"))
+        self.battery.set_draw(self.current)
         self.battery.step()
         self.soc = self.battery.get_soc()
+
+        #Step array every...hour rn
+        
 
         # Check if we are done
         self.is_terminated()
