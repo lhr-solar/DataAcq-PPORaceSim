@@ -1,13 +1,12 @@
 import time
 import logging
-import os
+# import os
 
 import liionpack as lp
-import pybamm
+import pybamm 
 import numpy as np
 from liionpack import CasadiManager
 from Array import ThreeParamCell
-from getweather import get_irradiance
 
 
 parameter_values = pybamm.ParameterValues("Chen2020")
@@ -35,9 +34,8 @@ class Battery:
 
 
     
-    num_cells = 10  # Number of cells in the array
+    num_cells = 288  # Number of cells in the array
     voltage = 0.647  # mpp(V) from powergen data should be updating based on time though
-    irradiance = get_irradiance()  # from get wehather
     temperature = 25  # Temperature in Celsius
     time_period = 3600  # Time period in seconds (e.g., 1 hour)
     current_draw = 1.2 #mpp(I) from powergen data
@@ -46,9 +44,13 @@ class Battery:
     def __init__(self, time_step: float):
         self.time_step = time_step
 
+        self.voltage = None
+        self.irradiance = None
+        self.temperature = None
+
         # Need accurate numbers for this. Let's just assume Telsa for now?
-        self.np = 14  # number of parallel cells
-        self.ns = 6  # number of series cells
+        self.np = 9  # number of parallel cells
+        self.ns = 32  # number of series cells
         self.netlist = lp.setup_circuit(
             self.np, self.ns, V=25, I=300)
 
@@ -169,7 +171,7 @@ class SolarCarBatteryManager(CasadiManager):
         self.Terminal_Node = np.array(netlist[self.I_map].node1)
         self.Nspm = np.sum(self.V_map)
 
-        self.split_models(self.Nspm, nproc)
+        self.split_models(self.Nspm, nproc) #splits simulation to allow parallel computation
 
         # Generate the protocol from the supplied experiment
         # self.protocol = lp.generate_protocol_from_experiment(
@@ -181,7 +183,7 @@ class SolarCarBatteryManager(CasadiManager):
         self.protocol = np.array([1] + [0] * (self.Nsteps - 1))
         netlist.loc[self.I_map, ("value")] = self.protocol[0]
         # Solve the circuit to initialise the electrochemical models
-        V_node, I_batt = lp.solve_circuit_vectorized(netlist)
+        V_node, I_batt = lp.solve_circuit_vectorized(netlist) #from liionpack is for calculating power loss through heating of resistors in a cicruit
 
         # The simulation output variables calculated at each step for each battery
         # Must be a 0D variable i.e. battery wide volume average - or X-averaged for
@@ -197,7 +199,7 @@ class SolarCarBatteryManager(CasadiManager):
             # variable_names = variable_names + output_variables
         self.Nvar = len(self.variable_names)
 
-        # Storage variables for simulation data
+        # Storage variables for simulation data - allocate memory
         self.shm_i_app = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
         self.shm_Ri = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
         self.output = np.zeros(
@@ -207,9 +209,11 @@ class SolarCarBatteryManager(CasadiManager):
         self.shm_i_app[0, :] = I_batt * -1
 
         # Step forward in time
-        self.V_terminal = np.zeros(self.Nsteps, dtype=np.float32)
+        # self.V_terminal = np.zeros(self.Nsteps, dtype=np.float32)
+        self.V_terminal = V_node[self.Terminal_node] 
         self.record_times = np.zeros(self.Nsteps, dtype=np.float32)
 
+        #voltage cutoff values
         self.v_cut_lower = parameter_values["Lower voltage cut-off [V]"]
         self.v_cut_higher = parameter_values["Upper voltage cut-off [V]"]
 

@@ -1,4 +1,3 @@
-import requests
 import pandas as pd
 import pvlib
 import datetime
@@ -44,7 +43,7 @@ class Weather:
             model = 'isotropic'
         )
         index = int(self.time / 60 / 5) 
-        return df_poa.iloc[index, :]
+        return df_poa.iloc[index, :][0]
     
     def cell_temp(self):
         params = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm']['open_rack_glass_glass']
@@ -98,8 +97,8 @@ class Weather:
 
 
         
-w = Weather(0.01)
-w.update(90)
-# print(w.get_irradiance())
-print(w.cell_temp())
-print(w.dc_power())
+# w = Weather(0.01)
+# w.update(40)
+# print("HI", w.get_irradiance())
+# print(w.cell_temp())
+# print(w.dc_power())
