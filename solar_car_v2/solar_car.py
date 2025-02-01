@@ -96,11 +96,7 @@ class SolarCar(ChronoBaseEnv):
     8 hours in seconds. Typical raceday.
     """
 
-<<<<<<< HEAD
     step_size = 1e-3
-=======
-    step_size = 3e-3
->>>>>>> master
     """
     Step size of the simulation in seconds. \n
     """
@@ -379,7 +375,7 @@ class SolarCar(ChronoBaseEnv):
         tracker.CalcClosestPoint(pos, closest_point)
 
         closest_point = np.array([closest_point.x, closest_point.y, closest_point.z])
-        index = np.where(np.all(points == closest_point, axis=1))[0][0]
+        index = np.where(np.any(points == closest_point, axis=1))[0][0]
         distance = self.distances[index - 1]
 
         # check if closest point is behind us
@@ -455,7 +451,6 @@ class SolarCar(ChronoBaseEnv):
         pos = self.vehicle.GetChassis().GetPos()
         goal_pos: chrono.ChVector3d = self.path.GetPoints()[-1]
         self.vehicle_pos = pos
-        print("pos", pos)
         delta_x = goal_pos.x - pos.x
         delta_y = goal_pos.y - pos.y
         observation[0] = delta_x

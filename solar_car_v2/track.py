@@ -2,6 +2,7 @@ import pychrono as chrono
 from pychrono import vehicle as veh
 import numpy as np
 
+
 def generate_path():
     """
     Generate a path for the solar car environment to follow
