@@ -25,5 +25,6 @@ RUN conda install -y "https://anaconda.org/projectchrono/pychrono/9.0.0/download
 
 RUN pip install opencv-python==4.7.0.72
 RUN pip uninstall -y pyqt5
+RUN pip install -y lmfit pvlib
 
 CMD [ "/bin/bash", ]

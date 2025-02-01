@@ -5,15 +5,15 @@
 @version    0.4.0
 @date       2023-09-28
 """
+
+from lmfit import Parameters, fit_report, minimize
+
 import sys
 
 sys.path.extend([".."])
 
 import numpy as np
 import pandas as pd
-from lmfit import Parameters, fit_report, minimize
-from PySide6 import QtWidgets
-
 
 
 class PV:

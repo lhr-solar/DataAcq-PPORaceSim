@@ -1,20 +1,21 @@
 import time
 import logging
+
 # import os
 
 import liionpack as lp
-import pybamm 
+import pybamm
 import numpy as np
 from liionpack import CasadiManager
-from Array import ThreeParamCell
+from .Array.Array import ThreeParamCell
 
 
 parameter_values = pybamm.ParameterValues("Chen2020")
 
-        
+
 class Battery:
     """
-    The battery class is the battery of the solar car. It contains the battery model and the battery manager. 
+    The battery class is the battery of the solar car. It contains the battery model and the battery manager.
     It modifies PyBaMM and liionpack to work on a step by step basis.
 
     Parameters
@@ -22,23 +23,24 @@ class Battery:
     time_step : float, optional
         The time step length of the simulation in seconds. The default is 1.0.
     """
-    pv_model = ThreeParamCell(params = {
-        "ref_irrad": 1000.0,  # W/m^2
-        "ref_temp": 298.15,  # Kelvin
-        "ref_voc": 0.721,  # Volts
-        "ref_isc": 6.15,  # Amps
-        "fit_fwd_ideality_factor": 2,
-        "fit_rev_ideality_factor": 1,
-        "fit_rev_sat_curr": 1 * 10**-5,
-    })
 
+    pv_model = ThreeParamCell(
+        params={
+            "ref_irrad": 1000.0,  # W/m^2
+            "ref_temp": 298.15,  # Kelvin
+            "ref_voc": 0.721,  # Volts
+            "ref_isc": 6.15,  # Amps
+            "fit_fwd_ideality_factor": 2,
+            "fit_rev_ideality_factor": 1,
+            "fit_rev_sat_curr": 1 * 10**-5,
+        }
+    )
 
-    
     num_cells = 288  # Number of cells in the array
     voltage = 0.647  # mpp(V) from powergen data should be updating based on time though
     temperature = 25  # Temperature in Celsius
     time_period = 3600  # Time period in seconds (e.g., 1 hour)
-    current_draw = 1.2 #mpp(I) from powergen data
+    current_draw = 1.2  # mpp(I) from powergen data
     _step = 1
 
     def __init__(self, time_step: float):
@@ -51,8 +53,7 @@ class Battery:
         # Need accurate numbers for this. Let's just assume Telsa for now?
         self.np = 9  # number of parallel cells
         self.ns = 32  # number of series cells
-        self.netlist = lp.setup_circuit(
-            self.np, self.ns, V=25, I=300)
+        self.netlist = lp.setup_circuit(self.np, self.ns, V=25, I=300)
 
         logging.info("Initializing battery simulation")
         start = time.time()
@@ -77,32 +78,37 @@ class Battery:
         logging.info("Battery setup complete")
         self.sim._step(0, None)
         self.sim.step = 0
-        self.full_charge = np.average(self._output(
-        )["X-averaged negative particle surface concentration [mol.m-3]"][-1])
+        self.full_charge = np.average(
+            self._output()[
+                "X-averaged negative particle surface concentration [mol.m-3]"
+            ][-1]
+        )
         end = time.time()
-        logging.info(f'Battery initialized in {end - start} seconds')
+        logging.info(f"Battery initialized in {end - start} seconds")
 
-    def set_draw(self):
-        self.current_draw = self.pv_model.getCurrent(voltage=self.voltage, irradiance=self.irradiance, temperature=self.temperature)
+    def _set_draw(self):
+        self.current_draw = self.pv_model.get_current()
 
     def update(self, voltage, irradiance, temperature):
         self.voltage = voltage
         self.irradiance = irradiance
         self.temperature = temperature
+        self.pv_model.update(voltage, irradiance, temperature)
+        self._set_draw()
 
     def step(self):
-        try:
-            start = time.time()
-            self.sim.protocol[self._step] = self.current_draw
-            ok = self.sim._step(self._step, None)
-            self.sim.step = self._step
-            self._step += 1
-            end = time.time()
-            logging.debug(f'Battery step complete in {end - start} seconds')
-            return ok
-        except Exception as e:
-            logging.fatal(f'Battery step failed: {e}')
-            return False
+        # try:
+        start = time.time()
+        self.sim.protocol[self._step] = 1
+        ok = self.sim._step(self._step, None)
+        self.sim.step = self._step
+        self._step += 1
+        end = time.time()
+        logging.debug(f"Battery step complete in {end - start} seconds")
+        return ok
+        # except Exception as e:
+        #     logging.fatal(f"Battery step failed: {e}")
+        #     return False
 
     def _output(self):
         return self.sim.step_output()
@@ -118,7 +124,8 @@ class Battery:
         """
         output = self._output()
         average = np.average(
-            output["X-averaged negative particle surface concentration [mol.m-3]"][-1])
+            output["X-averaged negative particle surface concentration [mol.m-3]"][-1]
+        )
         return average / self.full_charge
 
     def get_voltage(self) -> float:
@@ -133,14 +140,15 @@ if __name__ == "__main__":
     battery.step()
     print(battery.get_soc())
 
+
 class SolarCarBatteryManager(CasadiManager):
     """
     This is a custom battery manager for the solar car. It is a subclass of the CasadiManager class from liionpack. It is used to simulate the battery in a step by step manner.
     This manager was created so that the battery could be simulated in a step by step manner, rather PyBaMM's experiment model.
 
-    The primary change is overwriting the solve method. 
-    It has the additional parameters, dt, and minSteps and removed experiment. 
-    The method is close to the original but experiment is no longer used rather for the variable protocol, an array, to handle current demand step by step. 
+    The primary change is overwriting the solve method.
+    It has the additional parameters, dt, and minSteps and removed experiment.
+    The method is close to the original but experiment is no longer used rather for the variable protocol, an array, to handle current demand step by step.
     """
 
     def __init__(self, **kwargs):
@@ -156,7 +164,7 @@ class SolarCarBatteryManager(CasadiManager):
         initial_soc,
         nproc,
         dt=1,
-        minSteps = 100000,
+        minSteps=10000,
         setup_only=False,
     ):
         self.netlist = netlist
@@ -170,8 +178,9 @@ class SolarCarBatteryManager(CasadiManager):
         self.I_map = netlist["desc"].str.find("I") > -1
         self.Terminal_Node = np.array(netlist[self.I_map].node1)
         self.Nspm = np.sum(self.V_map)
-
-        self.split_models(self.Nspm, nproc) #splits simulation to allow parallel computation
+        self.split_models(
+            self.Nspm, nproc
+        )  # splits simulation to allow parallel computation
 
         # Generate the protocol from the supplied experiment
         # self.protocol = lp.generate_protocol_from_experiment(
@@ -183,7 +192,9 @@ class SolarCarBatteryManager(CasadiManager):
         self.protocol = np.array([1] + [0] * (self.Nsteps - 1))
         netlist.loc[self.I_map, ("value")] = self.protocol[0]
         # Solve the circuit to initialise the electrochemical models
-        V_node, I_batt = lp.solve_circuit_vectorized(netlist) #from liionpack is for calculating power loss through heating of resistors in a cicruit
+        V_node, I_batt = lp.solve_circuit_vectorized(
+            netlist
+        )  # from liionpack is for calculating power loss through heating of resistors in a cicruit
 
         # The simulation output variables calculated at each step for each battery
         # Must be a 0D variable i.e. battery wide volume average - or X-averaged for
@@ -202,26 +213,24 @@ class SolarCarBatteryManager(CasadiManager):
         # Storage variables for simulation data - allocate memory
         self.shm_i_app = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
         self.shm_Ri = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
-        self.output = np.zeros(
-            [self.Nvar, self.Nsteps, self.Nspm], dtype=np.float32)
+        self.output = np.zeros([self.Nvar, self.Nsteps, self.Nspm], dtype=np.float32)
 
         # Initialize currents in battery models
         self.shm_i_app[0, :] = I_batt * -1
 
         # Step forward in time
-        # self.V_terminal = np.zeros(self.Nsteps, dtype=np.float32)
-        self.V_terminal = V_node[self.Terminal_node] 
+        self.V_terminal = np.zeros(self.Nsteps, dtype=np.float32)
+        # self.V_terminal = V_node[self.Terminal_Node]
         self.record_times = np.zeros(self.Nsteps, dtype=np.float32)
 
-        #voltage cutoff values
+        # voltage cutoff values
         self.v_cut_lower = parameter_values["Lower voltage cut-off [V]"]
         self.v_cut_higher = parameter_values["Upper voltage cut-off [V]"]
 
         # Handle the inputs
         self.inputs = inputs
 
-        self.inputs_dict = lp.build_inputs_dict(
-            self.shm_i_app[0, :], self.inputs, None)
+        self.inputs_dict = lp.build_inputs_dict(self.shm_i_app[0, :], self.inputs, None)
         # Solver specific setup
         self.setup_actors(nproc, self.inputs_dict, initial_soc)
         # Get the initial state of the system

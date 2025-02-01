@@ -1,20 +1,19 @@
-from utils import normalize
 import math
 import numpy as np
 
 from scipy import constants
 
-from cell import Cell
+from .cell import Cell
 
 
 class ThreeParamCell(Cell):
     def __init__(self, params: dict, data_fp=None) -> None:
         super().__init__(params=params, data_fp=data_fp)
 
-        self.irradiance = None # from getweather
+        self.irradiance = None  # from getweather
         self.voltage = None
         self.temperature = None
-        self.performanceRatio = 0.5 # temporary
+        self.performanceRatio = 0.5  # temporary
         self.num_cell = 288  # number of cells 32 * 9
         self.AREA_cell = 153.328 / 10000  # cm^2 check with array about cell size
         self.EFFICIENCY_cell = 0.19  # percentage
@@ -24,14 +23,20 @@ class ThreeParamCell(Cell):
         self.irradiance = irradiance
         self.temperature = temperature
 
-    def step(self): # total energy we get from entire array
-        return self.AREA_cell * self.EFFICIENCY_cell * self.irrad * self.performanceRatio * self.num_cell
-    
+    def step(self):  # total energy we get from entire array
+        return (
+            self.AREA_cell
+            * self.EFFICIENCY_cell
+            * self.irradiance
+            * self.performanceRatio
+            * self.num_cell
+        )
+
     def get_current(self) -> float:
 
         if self.irradiance == 0.0:
             raise Exception("Incident irradiance is too low!")
-        if self.temperature == 0.0:
+        if self.temperature == 0.0 or self.temperature == None:
             raise Exception("Cell temperature is too low!")
 
         # Reference parameters
@@ -69,7 +74,8 @@ class ThreeParamCell(Cell):
 
             i_l = i_sc * (
                 1
-                - (math.exp(v_l / (fit_n1 * v_t)) - 1) / (math.exp(v_oc / (fit_n1 * v_t)) - 1)
+                - (math.exp(v_l / (fit_n1 * v_t)) - 1)
+                / (math.exp(v_oc / (fit_n1 * v_t)) - 1)
             )
         else:
             i_l = fit_i_d * (math.exp(-v_l / (fit_n2 * v_t)) - 1) + i_sc
@@ -118,7 +124,6 @@ class ThreeParamCell(Cell):
     #         v_l = -math.log((i_l - i_sc) / fit_i_d + 1) * fit_n2 * v_t
 
     #     return v_l
-
 
     # def get_iv(
     #     self,
@@ -222,4 +227,3 @@ class ThreeParamCell(Cell):
 
     #     error = [i - self.get_current(v, [irrad], [temp]) for v, i, _ in points]
     #     return error
-

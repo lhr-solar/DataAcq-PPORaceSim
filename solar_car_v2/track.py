@@ -20,20 +20,19 @@ def generate_path():
         total_distance += np.linalg.norm(p2 - p1)  # Calculate the Euclidean distance
         distances.append(total_distance)
 
-
     bounding_box = (
         # min x:
         # np.min(points[0]),
-        min(points, key = lambda x: x[0])[0],
+        min(points, key=lambda x: x[0])[0],
         # min y:
         # np.min(points[1]),
-        min(points, key = lambda y: y[1])[1],
+        min(points, key=lambda y: y[1])[1],
         # max x:
         # np.max(points[0]),
-        max(points, key = lambda x: x[0])[0],
+        max(points, key=lambda x: x[0])[0],
         # max y:
         # np.max(points[1]),
-        max(points, key = lambda x: x[1])[1]
+        max(points, key=lambda x: x[1])[1],
     )
     width = bounding_box[2] - bounding_box[0]
     height = bounding_box[3] - bounding_box[1]
@@ -47,7 +46,7 @@ def generate_path():
 
     vectot_vector_3d = chrono.vector_ChVector3d(vector_3d_points)
     path = chrono.ChBezierCurve(vectot_vector_3d)
-    
+
     return path, points, distances
 
 

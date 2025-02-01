@@ -5,7 +5,8 @@
 @version    0.4.0
 @date       2023-09-24
 """
-from pv import PV
+
+from .pv import PV
 
 
 class Cell(PV):
