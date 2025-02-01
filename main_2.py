@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if args.play:
         model = PPO.load("ppo_car_racing", env=env)
 
-        obs = env.reset()
+        obs, _ = env.reset()
 
         while True:
             action, _states = model.predict(obs)

@@ -96,7 +96,11 @@ class SolarCar(ChronoBaseEnv):
     8 hours in seconds. Typical raceday.
     """
 
+<<<<<<< HEAD
     step_size = 1e-3
+=======
+    step_size = 3e-3
+>>>>>>> master
     """
     Step size of the simulation in seconds. \n
     """
@@ -107,6 +111,9 @@ class SolarCar(ChronoBaseEnv):
     """
 
     def __init__(self, render_mode="human"):
+        chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.001)
+        chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.001)
+
         ChronoBaseEnv.__init__(self, render_mode)
 
         self.render_mode = render_mode
@@ -178,7 +185,7 @@ class SolarCar(ChronoBaseEnv):
 
         self.path, self.points, self.distances = generate_path()
 
-        self.vehicle = veh.WheeledVehicle(self.vehicle_file, chrono.ChContactMethod_NSC)
+        self.vehicle = veh.WheeledVehicle(self.vehicle_file, chrono.ChContactMethod_SMC)
         starting_point = self.path.Eval(0, 0)
         starting_point.z = 0.5
         self.vehicle.Initialize(chrono.ChCoordsysd(starting_point))
@@ -204,6 +211,9 @@ class SolarCar(ChronoBaseEnv):
         self.vehicle.GetSystem().SetCollisionSystemType(
             chrono.ChCollisionSystem.Type_BULLET
         )
+        self.vehicle.GetChassisBody().EnableCollision(False)
+        self.vehicle.GetChassisBody().SetFixed(True)
+        self.vehicle.GetSystem().GetSolver().AsIterative().SetMaxIterations(15)
 
         self.steps = 0
 
@@ -262,28 +272,22 @@ class SolarCar(ChronoBaseEnv):
         Args:
             action (2 x 1 np.array): Action to be applied to the environment, consisting of throttle and steering.
         """
-
         time = self.vehicle.GetSystem().GetChTime()
 
         desired_speed = action[0] / 3.6  # Convert to m/s
 
         self.driver.SetDesiredSpeed(desired_speed)
-
         for _ in range(self.steps_per_action):
             driver_inputs = self.driver.GetInputs()
+
             self.driver.Synchronize(time)
             self.vehicle.Synchronize(time, driver_inputs, self.terrain)
             self.terrain.Synchronize(time)
-            if self._render_setup:
-                pass
-                # self.vis.Synchronize(time, driver_inputs)
 
             self.driver.Advance(self.step_size)
+            # most processing time
             self.vehicle.Advance(self.step_size)
             self.terrain.Advance(self.step_size)
-            if self._render_setup:
-                pass
-                # self.vis.Advance(self.step_size)
 
             self.vehicle.GetSystem().DoStepDynamics(self.step_size)
 

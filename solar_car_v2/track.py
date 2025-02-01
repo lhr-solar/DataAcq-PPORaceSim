@@ -1,15 +1,12 @@
 import pychrono as chrono
 from pychrono import vehicle as veh
 import numpy as np
-import random
-
 
 def generate_path():
     """
     Generate a path for the solar car environment to follow
     Returns the path
     """
-    random.seed(42)
     points = [(x, y, 0) for (x, y) in list(np.random.rand(10, 2) * 150)]
 
     distances = []
