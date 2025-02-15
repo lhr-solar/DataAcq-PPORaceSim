@@ -20,11 +20,11 @@
 
     {
       "Suspension Input File": "hmmwv/suspension/Lower_WishBone.json",
-      "Suspension Location": [ -1.688965, 0, 0 ],
+      "Suspension Location": [ -1.688965, 0.0, 0 ],
       "Left Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
       "Right Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
-      "Left Brake Input File": "hmmwv/brake/HMMWV_BrakeSimple_Rear.json",
-      "Right Brake Input File": "hmmwv/brake/HMMWV_BrakeSimple_Rear.json"
+      "Left Brake Input File": "hmmwv/brake/HMMWV_BrakeSimple_Front.json",
+      "Right Brake Input File": "hmmwv/brake/HMMWV_BrakeSimple_Front.json"
     }
   ],
 

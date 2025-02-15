@@ -26,22 +26,22 @@
   
 
     "Control Arm": {
-      "Mass": 0.12565,
-      "COM": [ 0, -22.05, 6.35 ],
-      "Moments of Inertia": [ 1, 1, 1 ],
-      "Products of Inertia": [ 75348.34, 401336.32, 473227.29 ], 
-      "Radius": 0.005,
-      "Location Chassis": [ 0, 0.06, 0 ],
-      "Location Upright": [ 0, 0.48, -0.02 ]
+      "Mass": 0.05619,
+      "COM": [ -0.45402253, 0.34347653, -0.01000824 ],
+      "Moments of Inertia": [ 6.88078, 12.11150, 18.50384],
+      "Products of Inertia": [ -8.80481, 0.28489, -0.19755 ], 
+      "Radius": 0.01016,
+      "Location Chassis": [ 0.02, 0.39348, -0.69529 ],
+      "Location Upright": [ -0.5796, 0.3621, -0.231 ]
     },
   
     "Tierod": {
-      "Location Chassis": [ -0.05, 0.21, 0.08 ],
-      "Location Upright": [ -0.05, 0.48, 0.08 ]
+      "Location Chassis": [ 0.02, 0.39348, -0.69529 ],
+      "Location Upright": [ 0.6653, 0.24244, 0 ]
     },
   
     "Shock": {
-      "Location Chassis": [ 0, 0.28, 0.34 ],
+      "Location Chassis": [ 0.30896, 0.43979, 0.02393 ],
       "Location Arm": [ 0, 0.39, -0.015 ],
       "Spring Coefficient": 300000.0,
       "Damping Coefficient": 20000.0,

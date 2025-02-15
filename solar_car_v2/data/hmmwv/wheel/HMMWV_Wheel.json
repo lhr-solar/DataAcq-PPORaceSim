@@ -3,12 +3,12 @@
   "Type":                       "Wheel",
   "Template":                   "Wheel",
 
-  "Mass":                       18.8,
-  "Inertia":                    [0.4634, 0.6243, 0.4634],
+  "Mass":                       0.6367,
+  "Inertia":                    [0.0086, 0.0086, 0.0168],
 
     "Visualization": {
         "Mesh Filename": "hmmwv/hmmwv_rim.obj",
-        "Radius": 0.268,
-        "Width": 0.22
+        "Radius": 0.210865,
+        "Width": 0.0668
     }
 }

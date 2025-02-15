@@ -117,16 +117,16 @@ class SolarCar(ChronoBaseEnv):
         veh.SetDataPath(chrono.GetChronoDataPath())
 
         # Terain JSON specification file
-        self.rigidterrain_file = veh.GetDataFile("terrain/RigidPlane.json")  # Good
+        self.rigidterrain_file = veh.GetDataFile("terrain/RigidPlane.json")
 
         # HMMWV specification files (vehicle, powertrain, and tire models)
 
-        self.vehicle_file = veh.GetDataFile("hmmwv/vehicle/HMMWV_Vehicle.json")  # Good
-        self.engine_file = veh.GetDataFile("gator/GATOR_EngineSimple.json")  # Good
+        self.vehicle_file = veh.GetDataFile("hmmwv/vehicle/HMMWV_Vehicle.json")
+        self.engine_file = veh.GetDataFile("gator/GATOR_EngineSimple.json")
         self.transmission_file = veh.GetDataFile(
             "hmmwv/powertrain/HMMWV_AutomaticTransmissionShafts.json"
-        )  # Good
-        self.tire_file = veh.GetDataFile("hmmwv/tire/HMMWV_Pac02Tire.json")  # Good
+        )
+        self.tire_file = veh.GetDataFile("hmmwv/tire/HMMWV_Pac02Tire.json")
 
         self.vehicle = None
         self.engine = None
@@ -224,8 +224,8 @@ class SolarCar(ChronoBaseEnv):
                 "fit_rev_sat_curr": 1 * 10**-5,
             }
         )
-        self.battery = Battery(self.step_size)
-        self.weather = Weather(self.step_size)
+        self.battery = Battery(self.step_size * self.steps_per_action)
+        self.weather = Weather(self.step_size * self.steps_per_action)
 
         # Create the terrain, we probably want the terrain to match the path
         # self.terrain = veh.RigidTerrain(

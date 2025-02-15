@@ -10,8 +10,10 @@ RUN conda install -c anaconda -y python=3.9.16
 RUN conda install -c anaconda -y tensorboard
 RUN conda install -c conda-forge -y mkl=2023.2.0
 RUN conda install -c conda-forge -y irrlicht=1.8.5
-RUN conda install -c nvidia/label/cuda-11.7.0 -y cuda-toolkit
-RUN conda install -c conda-forge -y glfw
+
+# For sensor support, we probably actually don't need this though
+# RUN conda install -c nvidia/label/cuda-11.7.0 -y cuda-toolkit
+# RUN conda install -c conda-forge -y glfw
 
 RUN pip install stable-baselines3[extra]==2.1.0
 RUN pip install gymnasium==0.29.1
