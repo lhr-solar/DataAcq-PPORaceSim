@@ -2,14 +2,15 @@ import liionpack as lp
 import numpy as np
 from liionpack import CasadiManager
 
+
 class SolarCarBatteryManager(CasadiManager):
     """
     This is a custom battery manager for the solar car. It is a subclass of the CasadiManager class from liionpack. It is used to simulate the battery in a step by step manner.
     This manager was created so that the battery could be simulated in a step by step manner, rather PyBaMM's experiment model.
 
-    The primary change is overwriting the solve method. 
-    It has the additional parameters, dt, and minSteps and removed experiment. 
-    The method is close to the original but experiment is no longer used rather for the variable protocol, an array, to handle current demand step by step. 
+    The primary change is overwriting the solve method.
+    It has the additional parameters, dt, and minSteps and removed experiment.
+    The method is close to the original but experiment is no longer used rather for the variable protocol, an array, to handle current demand step by step.
     """
 
     def __init__(self, **kwargs):
@@ -25,7 +26,7 @@ class SolarCarBatteryManager(CasadiManager):
         initial_soc,
         nproc,
         dt=1,
-        minSteps = 100000,
+        minSteps=100000,
         setup_only=False,
     ):
         self.netlist = netlist
@@ -71,8 +72,7 @@ class SolarCarBatteryManager(CasadiManager):
         # Storage variables for simulation data
         self.shm_i_app = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
         self.shm_Ri = np.zeros([self.Nsteps, self.Nspm], dtype=np.float32)
-        self.output = np.zeros(
-            [self.Nvar, self.Nsteps, self.Nspm], dtype=np.float32)
+        self.output = np.zeros([self.Nvar, self.Nsteps, self.Nspm], dtype=np.float32)
 
         # Initialize currents in battery models
         self.shm_i_app[0, :] = I_batt * -1
@@ -87,8 +87,7 @@ class SolarCarBatteryManager(CasadiManager):
         # Handle the inputs
         self.inputs = inputs
 
-        self.inputs_dict = lp.build_inputs_dict(
-            self.shm_i_app[0, :], self.inputs, None)
+        self.inputs_dict = lp.build_inputs_dict(self.shm_i_app[0, :], self.inputs, None)
         # Solver specific setup
         self.setup_actors(nproc, self.inputs_dict, initial_soc)
         # Get the initial state of the system
@@ -96,4 +95,3 @@ class SolarCarBatteryManager(CasadiManager):
         if not setup_only:
             self._step_solve_step(None)
             return self.step_output()
-        

@@ -9,6 +9,8 @@ from solar_car_v2.solar_car import SolarCar
 
 import os
 
+import cProfile
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # logging.basicConfig(level=logging.INFO)

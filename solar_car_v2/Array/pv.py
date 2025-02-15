@@ -90,62 +90,62 @@ class PV:
         """
         raise NotImplementedError
 
-    def get_iv(
-        self,
-        irrad: list[float],
-        temp: list[float],
-        curr_range: list[float] = [-10.0, 10.0],
-        volt_range: list[float] = [-10.0, 10.0],
-    ) -> list[list[float, float, float]]:
-        """Get the I-V curve of the instance for some specific irradiance and
-        temperature as an array of points.
+    # def get_iv(
+    #     self,
+    #     irrad: list[float],
+    #     temp: list[float],
+    #     curr_range: list[float] = [-10.0, 10.0],
+    #     volt_range: list[float] = [-10.0, 10.0],
+    # ) -> list[list[float, float, float]]:
+    #     """Get the I-V curve of the instance for some specific irradiance and
+    #     temperature as an array of points.
 
-        Args:
-            irrad (list[float]): Irradiance incident on PV. W/m^2.
-            temp (list[float]): Surface temperature of PV. Kelvin.
-            curr_range (list[float]): Current bounds to capture.
-            volt_range (list[float]): Voltage bounds to capture.
+    #     Args:
+    #         irrad (list[float]): Irradiance incident on PV. W/m^2.
+    #         temp (list[float]): Surface temperature of PV. Kelvin.
+    #         curr_range (list[float]): Current bounds to capture.
+    #         volt_range (list[float]): Voltage bounds to capture.
 
-        Returns:
-            list[list[float, float, float]]: List of ordered
-                voltage-current-power triplets. Volts, Amps, Watts.
-        """
-        raise NotImplementedError
+    #     Returns:
+    #         list[list[float, float, float]]: List of ordered
+    #             voltage-current-power triplets. Volts, Amps, Watts.
+    #     """
+    #     raise NotImplementedError
 
-    def get_edge(
-        self,
-        irrad: list[float],
-        temp: list[float],
-        max_isc: float = 10.0,
-        max_voc: float = 10.0,
-    ) -> ((float, float), (float, float)):
-        """Get the 1st power quadrant edge characteristics of the instance.
+    # def get_edge(
+    #     self,
+    #     irrad: list[float],
+    #     temp: list[float],
+    #     max_isc: float = 10.0,
+    #     max_voc: float = 10.0,
+    # ) -> ((float, float), (float, float)):
+    #     """Get the 1st power quadrant edge characteristics of the instance.
 
-        Args:
-            irrad (list[float]): Irradiance incident on PV. W/m^2.
-            temp (list[float]): Surface temperature of PV. Kelvin.
-            max_isc (float): Maximum expected 1st power quadrant ISC.
-            max_voc (float): Maximum expected 1st power quadrant VOC.
+    #     Args:
+    #         irrad (list[float]): Irradiance incident on PV. W/m^2.
+    #         temp (list[float]): Surface temperature of PV. Kelvin.
+    #         max_isc (float): Maximum expected 1st power quadrant ISC.
+    #         max_voc (float): Maximum expected 1st power quadrant VOC.
 
-        Returns:
-            (float, float), (float, float):
-                Open circuit voltage (Volts)
-                Short circuit current (Amps)
-                Maximum power point voltage (Volts)
-                Maximum power point current (Amps)
-        """
-        iv = self.get_iv(irrad, temp, curr_range=[0, max_isc], volt_range=[0, max_voc])
-        df = pd.DataFrame(iv, columns=["Voltage (V)", "Current (A)", "Power (W)"])
-        df = df[df["Power (W)"] > 0.0]
+    #     Returns:
+    #         (float, float), (float, float):
+    #             Open circuit voltage (Volts)
+    #             Short circuit current (Amps)
+    #             Maximum power point voltage (Volts)
+    #             Maximum power point current (Amps)
+    #     """
+    #     iv = self.get_iv(irrad, temp, curr_range=[0, max_isc], volt_range=[0, max_voc])
+    #     df = pd.DataFrame(iv, columns=["Voltage (V)", "Current (A)", "Power (W)"])
+    #     df = df[df["Power (W)"] > 0.0]
 
-        v_oc = df.nlargest(1, "Voltage (V)").iloc[0]["Voltage (V)"]
-        i_sc = df.nlargest(1, "Current (A)").iloc[0]["Current (A)"]
+    #     v_oc = df.nlargest(1, "Voltage (V)").iloc[0]["Voltage (V)"]
+    #     i_sc = df.nlargest(1, "Current (A)").iloc[0]["Current (A)"]
 
-        mpp = df.nlargest(1, "Power (W)")
-        v_mpp = mpp.iloc[0]["Voltage (V)"]
-        i_mpp = mpp.iloc[0]["Current (A)"]
+    #     mpp = df.nlargest(1, "Power (W)")
+    #     v_mpp = mpp.iloc[0]["Voltage (V)"]
+    #     i_mpp = mpp.iloc[0]["Current (A)"]
 
-        return (v_oc, i_sc), (v_mpp, i_mpp)
+    #     return (v_oc, i_sc), (v_mpp, i_mpp)
 
     # def vis(
     #     self,

@@ -7,8 +7,6 @@ import liionpack as lp
 import pybamm
 import numpy as np
 from liionpack import CasadiManager
-from .Array.Array import ThreeParamCell
-
 
 parameter_values = pybamm.ParameterValues("Chen2020")
 
@@ -23,18 +21,6 @@ class Battery:
     time_step : float, optional
         The time step length of the simulation in seconds. The default is 1.0.
     """
-
-    pv_model = ThreeParamCell(
-        params={
-            "ref_irrad": 1000.0,  # W/m^2
-            "ref_temp": 298.15,  # Kelvin
-            "ref_voc": 0.721,  # Volts
-            "ref_isc": 6.15,  # Amps
-            "fit_fwd_ideality_factor": 2,
-            "fit_rev_ideality_factor": 1,
-            "fit_rev_sat_curr": 1 * 10**-5,
-        }
-    )
 
     num_cells = 288  # Number of cells in the array
     voltage = 0.647  # mpp(V) from powergen data should be updating based on time though
@@ -70,7 +56,7 @@ class Battery:
             output_variables=output_variables,
             inputs=None,
             initial_soc=1,
-            nproc=0,
+            nproc=1,
             dt=self.time_step,
             setup_only=True,
         )
@@ -86,29 +72,18 @@ class Battery:
         end = time.time()
         logging.info(f"Battery initialized in {end - start} seconds")
 
-    def _set_draw(self):
-        self.current_draw = self.pv_model.get_current()
-
-    def update(self, voltage, irradiance, temperature):
-        self.voltage = voltage
-        self.irradiance = irradiance
-        self.temperature = temperature
-        self.pv_model.update(voltage, irradiance, temperature)
-        self._set_draw()
+    def update(self, current: float):
+        self.current_draw = current
 
     def step(self):
-        # try:
         start = time.time()
-        self.sim.protocol[self._step] = 1
+        self.sim.protocol[self._step] = self.current_draw
         ok = self.sim._step(self._step, None)
         self.sim.step = self._step
         self._step += 1
         end = time.time()
         logging.debug(f"Battery step complete in {end - start} seconds")
         return ok
-        # except Exception as e:
-        #     logging.fatal(f"Battery step failed: {e}")
-        #     return False
 
     def _output(self):
         return self.sim.step_output()
@@ -189,7 +164,7 @@ class SolarCarBatteryManager(CasadiManager):
         # self.Nsteps = len(self.protocol)
         self.dt = dt
         self.Nsteps = minSteps
-        self.protocol = np.array([1] + [0] * (self.Nsteps - 1))
+        self.protocol = np.array([1, -1] + [0] * (self.Nsteps - 1))
         netlist.loc[self.I_map, ("value")] = self.protocol[0]
         # Solve the circuit to initialise the electrochemical models
         V_node, I_batt = lp.solve_circuit_vectorized(

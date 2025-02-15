@@ -96,7 +96,7 @@ class SolarCar(ChronoBaseEnv):
     8 hours in seconds. Typical raceday.
     """
 
-    step_size = 1e-3
+    step_size = 3e-3
     """
     Step size of the simulation in seconds. \n
     """
@@ -171,6 +171,18 @@ class SolarCar(ChronoBaseEnv):
         self.path, self.points, self.distances = generate_path()
         self.weather = Weather(self.step_size)
 
+        self.array = ThreeParamCell(
+            params={
+                "ref_irrad": 1000.0,  # W/m^2
+                "ref_temp": 298.15,  # Kelvin
+                "ref_voc": 0.721,  # Volts
+                "ref_isc": 6.15,  # Amps
+                "fit_fwd_ideality_factor": 2,
+                "fit_rev_ideality_factor": 1,
+                "fit_rev_sat_curr": 1 * 10**-5,
+            }
+        )
+
         self.soc = 1
 
     def reset(self, seed=None, options=None):
@@ -211,29 +223,18 @@ class SolarCar(ChronoBaseEnv):
         )
         self.vehicle.GetChassisBody().EnableCollision(False)
         self.vehicle.GetChassisBody().SetFixed(True)
-        self.vehicle.GetSystem().GetSolver().AsIterative().SetMaxIterations(15)
+        self.vehicle.GetSystem().GetSolver().AsIterative().SetMaxIterations(8)
 
         self.steps = 0
 
-        self.array = ThreeParamCell(
-            params={
-                "ref_irrad": 1000.0,  # W/m^2
-                "ref_temp": 298.15,  # Kelvin
-                "ref_voc": 0.721,  # Volts
-                "ref_isc": 6.15,  # Amps
-                "fit_fwd_ideality_factor": 2,
-                "fit_rev_ideality_factor": 1,
-                "fit_rev_sat_curr": 1 * 10**-5,
-            }
-        )
-        self.battery = Battery(self.step_size * self.steps_per_action)
-        self.weather = Weather(self.step_size * self.steps_per_action)
+        # arbitrary step size for battery for now
+        self.battery = Battery(self.step_size * self.steps_per_action * 10)
 
         # Create the terrain, we probably want the terrain to match the path
-        # self.terrain = veh.RigidTerrain(
-        #     self.vehicle.GetSystem(), self.rigidterrain_file
-        # )
-        # self.terrain.Initialize()
+        self.terrain = veh.RigidTerrain(
+            self.vehicle.GetSystem(), self.rigidterrain_file
+        )
+        self.terrain.Initialize()
 
         self.terrain = generate_terrain(self.vehicle.GetSystem(), self.path)
         self.terrain.Initialize()
@@ -299,24 +300,20 @@ class SolarCar(ChronoBaseEnv):
         self.weather.update(self.vehicle.GetChassisBody().GetRotAngle())
 
         # Update Array
-        self.power = self.weather.dc_power()
+        # power = self.weather.dc_power()
         self.array.update(
             self.voltage,
             self.weather.get_irradiance(),
             self.weather.get_attribute("Temperature"),
         )
-        self.current = self.array.get_current()
-        self.energy_gen = self.array.step()
+        current = self.array.get_current()
+        self.array.step()
 
         # Update Battery
-        self.battery.update(
-            self.voltage,
-            self.weather.get_irradiance(),
-            self.weather.get_attribute("Temperature"),
-        )
-        self.battery.step()
-
-        self.soc = self.battery.get_soc()
+        if self.steps % 10 == 0:
+            self.battery.update(-current)
+            self.battery.step()
+            self.soc = self.battery.get_soc()
 
         # Check if we are done
         self.is_terminated()
@@ -364,36 +361,36 @@ class SolarCar(ChronoBaseEnv):
         """
         # scale = 200
         # Get current position
-        pos = self.vehicle.GetChassis().GetPos()
+        # pos = self.vehicle.GetChassis().GetPos()
 
-        # Use waypoints??
-        points = np.array(self.points)
-        tracker = chrono.ChBezierCurveTracker(self.path)
+        # # Use waypoints??
+        # points = np.array(self.points)
+        # tracker = chrono.ChBezierCurveTracker(self.path)
 
-        # # (closest_point - pos).Length() - euclidean length in context of ChVector class
-        # distance = pos.DistanceTo(closest_point)
-        # # distance = (closest_point - points[-1]).Length()
-        closest_point = chrono.ChVector3d()
-        tracker.CalcClosestPoint(pos, closest_point)
+        # # # (closest_point - pos).Length() - euclidean length in context of ChVector class
+        # # distance = pos.DistanceTo(closest_point)
+        # # # distance = (closest_point - points[-1]).Length()
+        # closest_point = chrono.ChVector3d()
+        # tracker.CalcClosestPoint(pos, closest_point)
 
-        closest_point = np.array([closest_point.x, closest_point.y, closest_point.z])
-        index = np.where(np.any(points == closest_point, axis=1))[0][0]
-        distance = self.distances[index - 1]
+        # closest_point = np.array([closest_point.x, closest_point.y, closest_point.z])
+        # index = np.where(np.any(points == closest_point, axis=1))[0][0]
+        # distance = self.distances[index - 1]
 
-        # check if closest point is behind us
-        tangent = self.path.Eval(int(index), 0.0)
+        # # check if closest point is behind us
+        # tangent = self.path.Eval(int(index), 0.0)
 
-        direction = (chrono.ChVector3d(*closest_point) - pos).GetNormalized()
-        dot = direction.Dot(tangent)
-        if dot < 0:
-            # Behind us
-            distance += len(closest_point - points[index])
-        else:
-            distance -= len(closest_point - points[index])
+        # direction = (chrono.ChVector3d(*closest_point) - pos).GetNormalized()
+        # dot = direction.Dot(tangent)
+        # if dot < 0:
+        #     # Behind us
+        #     distance += len(closest_point - points[index])
+        # else:
+        #     distance -= len(closest_point - points[index])
 
-        reward = distance
+        # reward = distance
 
-        return reward
+        return 0
 
     def is_terminated(self):
         """Check if the environment is terminated"""
@@ -413,25 +410,25 @@ class SolarCar(ChronoBaseEnv):
 
         Check if the rover has fallen off the terrain, and if so truncate and give a large penalty.
         """
-        # Vehicle should not leave the lane
-        if (
-            (self.vehicle_pos.y > self.road_length)
-            or (self.vehicle_pos.y < -self.road_length)
-            or (self.vehicle_pos.z < 0)
-        ):
-            print("--------------------------------------------------------------")
-            print("Outside of lane")
-            print("Vehicle Position: ", self.vehicle_pos)
-            print("--------------------------------------------------------------")
-            self.reward -= 400
-            self._truncated = True
-        elif self.vehicle.GetChassis().GetPos().x > 50:
-            print("--------------------------------------------------------------")
-            print("Reached end of lane")
-            print("Vehicle Position: ", self.vehicle.GetChassis().GetPos())
-            print("--------------------------------------------------------------")
-            self.reward += 400
-            self._truncated = True
+        # # Vehicle should not leave the lane
+        # if (
+        #     (self.vehicle_pos.y > self.road_length)
+        #     or (self.vehicle_pos.y < -self.road_length)
+        #     or (self.vehicle_pos.z < 0)
+        # ):
+        #     print("--------------------------------------------------------------")
+        #     print("Outside of lane")
+        #     print("Vehicle Position: ", self.vehicle_pos)
+        #     print("--------------------------------------------------------------")
+        #     self.reward -= 400
+        #     self._truncated = True
+        # elif self.vehicle.GetChassis().GetPos().x > 50:
+        #     print("--------------------------------------------------------------")
+        #     print("Reached end of lane")
+        #     print("Vehicle Position: ", self.vehicle.GetChassis().GetPos())
+        #     print("--------------------------------------------------------------")
+        #     self.reward += 400
+        #     self._truncated = True
 
         return self._truncated
 
@@ -448,28 +445,26 @@ class SolarCar(ChronoBaseEnv):
                 4. Heading needed to reach the goal
                 5. Velocity of vehicle
         """
-        observation = np.zeros(5)
+        # observation = np.zeros(5)
 
-        pos = self.vehicle.GetChassis().GetPos()
-        goal_pos: chrono.ChVector3d = self.path.GetPoints()[-1]
-        self.vehicle_pos = pos
-        delta_x = goal_pos.x - pos.x
-        delta_y = goal_pos.y - pos.y
-        observation[0] = delta_x
-        observation[1] = delta_y
+        # pos = self.vehicle.GetChassis().GetPos()
+        # goal_pos: chrono.ChVector3d = self.path.GetPoints()[-1]
+        # self.vehicle_pos = pos
+        # delta_x = goal_pos.x - pos.x
+        # delta_y = goal_pos.y - pos.y
+        # observation[0] = delta_x
+        # observation[1] = delta_y
 
-        heading_quartenion = self.vehicle.GetChassis().GetRot()
-        heading_vector = chrono.RotVecFromQuat(heading_quartenion)
-        observation[2] = np.arctan2(heading_vector.y, heading_vector.x)
+        # heading_quartenion = self.vehicle.GetChassis().GetRot()
+        # heading_vector = chrono.RotVecFromQuat(heading_quartenion)
+        # observation[2] = np.arctan2(heading_vector.y, heading_vector.x)
 
-        goal_pos.GetNormalized()
-        heading_needed = np.arctan2(delta_y, delta_x)
-        observation[3] = heading_needed
+        # goal_pos.GetNormalized()
+        # heading_needed = np.arctan2(delta_y, delta_x)
+        # observation[3] = heading_needed
 
-        observation[4] = self.vehicle.GetSpeed()
-        # For not just the priveledged of the rover
-        # return observation
-
-        print(observation)
+        # observation[4] = self.vehicle.GetSpeed()
+        # # For not just the priveledged of the rover
+        # # return observation
 
         return [0, 0, 0, 0, 0]
