@@ -139,8 +139,10 @@ class SolarCar(ChronoBaseEnv):
         self.vis = None
         self.array = None
         self.battery = None
-        self.prev_SOC = 0
         self.voltage = 0.5  # UPDATE VALUE??
+        self.power = None
+        self.current = None
+        self.energy_gen = None
 
         # ---------------------------------
         # Gym Environment variables
@@ -356,7 +358,7 @@ class SolarCar(ChronoBaseEnv):
         """Get the reward for the current step
 
         Get the reward for the current step based on the distance to the goal, and the distance the robot has traveled.
-
+//
         Returns:
             float: Reward for the current step
         """
