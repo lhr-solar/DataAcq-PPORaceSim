@@ -3,10 +3,10 @@
   "Type": "Transmission",
   "Template": "AutomaticTransmissionShafts",
 
-  "Transmission Block Inertia": 10.5, // connection to chassis
+  "Transmission Block Inertia": 10.5,
   "Input Shaft Inertia": 0.3,
-  "Motorshaft Inertia": 0.5, // connection to engine
-  "Driveshaft Inertia": 0.5, // connection to driveline
+  "Motorshaft Inertia": 0.5,
+  "Driveshaft Inertia": 0.5,
 
   "Torque Converter": {
     "Capacity Factor Map": [

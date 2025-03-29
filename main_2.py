@@ -42,7 +42,7 @@ if __name__ == "__main__":
     render_mode = "human" if args.human or args.play else "computer"
 
     env = make_vec_env(
-        lambda render_mode: SolarCar(render_mode),
+        SolarCar,
         n_envs=n_envs,
         env_kwargs=dict(render_mode=render_mode),
         seed=np.random.randint(0, 2**31),
@@ -58,13 +58,14 @@ if __name__ == "__main__":
     n_steps = episode_count * episode_length
 
     if args.play:
-        model = PPO.load("ppo_car_racing", env=env)
+        model = PPO.load("ppo_car_racing_2", env=env)
 
-        obs, _ = env.reset()
+        obs = env.reset()
 
         while True:
             action, _states = model.predict(obs)
             obs, reward, terminated, truncated = env.step(action)
+            print(reward)
             env.render()
     else:
         if args.continue_training and not args.new:
@@ -92,6 +93,10 @@ if __name__ == "__main__":
             total_timesteps=episode_count * episode_length * n_envs, progress_bar=True
         )
 
+        print("Saving model")
+
         model.save(path)
+
+        print("Cleaning up resources")
 
         env.close()

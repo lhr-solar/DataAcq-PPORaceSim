@@ -1,8 +1,9 @@
 import pychrono as chrono
+
 try:
     import pychrono.irrlicht as chronoirr
 except:
-    print('Could not import ChronoIrrlicht')
+    print("Could not import ChronoIrrlicht")
 
 import numpy as np
 
@@ -16,9 +17,9 @@ class ChronoBaseEnv(gym.Env):
     Base class for Chrono environments.
     """
 
-    def __init__(self, render_mode='human'):
+    def __init__(self, render_mode="human"):
         # Data subdirectory in this folder
-        self.chronopath = os.path.join(os.path.dirname(__file__), 'data/')
+        self.chronopath = os.path.join(os.path.dirname(__file__), "data/")
         chrono.SetChronoDataPath(self.chronopath)
         self.render_mode = render_mode
         self.render_setup = False
@@ -89,16 +90,11 @@ class ChronoBaseEnv(gym.Env):
         Set the observation space.
         :param observation: The observation to set the observation space.
         """
-        self.observation_space = self.convert_observation_to_gymspace(
-            observation)
+        self.observation_space = self.convert_observation_to_gymspace(observation)
         return self.observation_space
 
     def __del__(self):
-        if self.render_setup:
-            self.myapplication.GetDevice().closeDevice()
-            print('Destructor called, Device deleted.')
-        else:
-            print('Destructor called, No device to delete.')
+        pass
 
     def __setstate__(self, state):
         self.__init__()

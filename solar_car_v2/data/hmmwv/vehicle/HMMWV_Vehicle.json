@@ -4,13 +4,15 @@
   "Template": "WheeledVehicle",
 
   "Chassis": {
-    "Input File": "hmmwv/chassis/HMMWV_Chassis.json"
+    "Input File": "gator/json/Gator_Chassis.json"
   },
 
   "Axles": [
     {
       "Suspension Input File": "hmmwv/suspension/Upper_WishBone.json",
-      "Suspension Location": [ 1.688965, 0, 0 ],
+      "Suspension Location": [ 0.97, 0, 0 ],
+
+
       "Steering Index": 0,
       "Left Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
       "Right Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
@@ -20,7 +22,7 @@
 
     {
       "Suspension Input File": "hmmwv/suspension/Lower_WishBone.json",
-      "Suspension Location": [ -1.688965, 0.0, 0 ],
+      "Suspension Location": [ -0.97, 0, 0 ],
       "Left Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
       "Right Wheel Input File": "hmmwv/wheel/HMMWV_Wheel.json",
       "Left Brake Input File": "hmmwv/brake/HMMWV_BrakeSimple_Front.json",
@@ -30,15 +32,15 @@
 
   "Steering Subsystems": [
     {
-      "Input File": "hmmwv/steering/HMMWV_PitmanArm.json",
-      "Location": [ 1.24498, 0, 0.101322 ],
-      "Orientation": [ 0.98699637, 0, 0.16074256, 0 ]
+      "Input File": "hmmwv/steering/HMMVW_PitmanArm.json",
+      "Location": [ 0.92, 0, 0.08 ],
+      "Orientation": [ 1, 0, 0, 0 ]
     }
   ],
 
-  "Wheelbase": 3.378,
-  "Minimum Turning Radius": 7.62,
-  "Maximum Steering Angle (deg)": 30.23,
+  "Wheelbase": 2.776,
+  "Minimum Turning Radius": 7.6,
+  "Maximum Steering Angle (deg)": 25,
 
   "Driveline": {
     "Input File": "hmmwv/driveline/HMMWV_Driveline2WD.json",
