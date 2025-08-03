@@ -25,7 +25,7 @@ parser.add_argument("-e", "--episode_length", type=int, default=28800)
 parser.add_argument("-d", "--device", type=str, default="cuda")
 parser.add_argument("-p", "--play", action="store_true", default=False)
 parser.add_argument("-env", "--env_count", type=int, default=1)
-parser.add_argument("-b", "--batch_size", type=int, default=64)
+parser.add_argument("-b", "--batch_size", type=int, default=256)
 parser.add_argument("-ec", "--episode_count", type=int, default=1)
 
 args = parser.parse_args()

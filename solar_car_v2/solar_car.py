@@ -65,9 +65,7 @@ class SolarCar(ChronoBaseEnv):
     97 km/h ~= 60 mph \n 
     """
 
-    action_space = gym.spaces.Box(
-        low=(-max_speed), high=max_speed, shape=(1,), dtype=np.float64
-    )
+    action_space = gym.spaces.Box(low=(0), high=max_speed, shape=(1,), dtype=np.float64)
     """
     Action space for the solar car environment. \n
     shape: [desired_speed] \n
@@ -79,7 +77,7 @@ class SolarCar(ChronoBaseEnv):
     shape: [distance along track, velocity, slope, battery %, solar radiation, future solar radiation] \n
     """
 
-    init_pos = chrono.ChVector3d(0, 0, 0.5)
+    init_pos = chrono.ChVector3d(0, 0, 0)
     """
     Initial position of the solar car. \n
     """
@@ -96,7 +94,7 @@ class SolarCar(ChronoBaseEnv):
     8 hours in seconds. Typical raceday.
     """
 
-    step_size = 1 / 60
+    step_size = 1e-3
     """
     Step size of the simulation in seconds. \n
     """
@@ -107,8 +105,8 @@ class SolarCar(ChronoBaseEnv):
     """
 
     def __init__(self, render_mode="human"):
-        chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.001)
-        chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.001)
+        chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(1.0)
+        chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.1)
 
         ChronoBaseEnv.__init__(self, render_mode)
 
@@ -120,14 +118,15 @@ class SolarCar(ChronoBaseEnv):
         self.rigidterrain_file = veh.GetDataFile("terrain/RigidPlane.json")
 
         # HMMWV specification files (vehicle, powertrain, and tire models)
-
-        self.vehicle_file = veh.GetDataFile("hmmwv/vehicle/HMMWV_Vehicle.json")
-        self.engine_file = veh.GetDataFile("hmmwv/powertrain/HMMWV_EngineSimple.json")
+        self.vehicle_file = veh.GetDataFile("gator/json/Gator_Vehicle.json")
+        self.engine_file = veh.GetDataFile("gator/json/Gator_EngineSimple.json")
         # self.engine_file = veh.GetDataFile("gator/Gator_EngineSimple.json")
         self.transmission_file = veh.GetDataFile(
-            "hmmwv/powertrain/HMMWV_AutomaticTransmissionShafts.json"
+            "gator/json/Gator_AutomaticTransmissionSimpleMap.json"
         )
-        self.tire_file = veh.GetDataFile("hmmwv/tire/HMMWV_Pac02Tire.json")
+        self.tire_file = veh.GetDataFile("gator/json/Gator_Wheel.json")
+        self.rigidtire_file = veh.GetDataFile("hmmwv/tire/HMMWV_Pac02Tire.json")
+        self.bodyfile = chrono.GetChronoDataFile("solid_json.json")
 
         self.engine = None
         self.transmission = None
@@ -201,38 +200,71 @@ class SolarCar(ChronoBaseEnv):
         self.m_system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
         self.path, self.points, self.distances = generate_path()
 
-        self.vehicle = veh.Gator(self.m_system)
+        self.vehicle = veh.WheeledVehicle(self.m_system, self.vehicle_file)
         starting_point = self.path.Eval(0, 0)
-        starting_point.z = 0.5
-        self.vehicle.Initialize()
-        self.vehicle.SetInitPosition(chrono.ChCoordsysd(starting_point))
-        # self.vehicle.Initialize(chrono.ChCoordsysd(starting_point))
+        heading = self.path.EvalDer(0, 0)
+        starting_point.z = 0.25
+
+        ang = np.arctan2(heading.y, heading.x)
+
+        self.vehicle.Initialize(
+            chrono.ChCoordsysd(starting_point, ang, chrono.ChVector3d(0, 0, 1))
+        )
 
         self.vehicle.GetChassis().SetFixed(True)
-        self.vehicle.SetChassisVisualizationType(veh.VisualizationType_PRIMITIVES)
-        # self.vehicle.SetChassisRearVisualizationType(veh.VisualizationType_PRIMITIVES)
-        self.vehicle.SetSuspensionVisualizationType(veh.VisualizationType_PRIMITIVES)
-        self.vehicle.SetSteeringVisualizationType(veh.VisualizationType_PRIMITIVES)
-        self.vehicle.SetWheelVisualizationType(veh.VisualizationType_PRIMITIVES)
+        self.vehicle.SetChassisVisualizationType(veh.VisualizationType_MESH)
+        self.vehicle.SetChassisRearVisualizationType(veh.VisualizationType_PRIMITIVES)
+        self.vehicle.SetSuspensionVisualizationType(veh.VisualizationType_MESH)
+        self.vehicle.SetSteeringVisualizationType(veh.VisualizationType_MESH)
+        self.vehicle.SetWheelVisualizationType(veh.VisualizationType_MESH)
+        self.vehicle.SetTireVisualizationType(veh.VisualizationType_MESH)
 
         # Create and initialize the powertrain system
         self.engine = veh.ReadEngineJSON(self.engine_file)
         self.transmission = veh.ReadTransmissionJSON(self.transmission_file)
         self.powertrain = veh.ChPowertrainAssembly(self.engine, self.transmission)
-        self.vehicle.GetVehicle().InitializePowertrain(self.powertrain)
+        self.vehicle.InitializePowertrain(self.powertrain)
 
-        self.vehicle.SetTireType(veh.TireModelType_TMEASY)
-        self.vehicle.SetTireStepSize(self.step_size)
+        # self.vehicle.
+        # self.vehicle.SetTireType(veh.TireModelType_TMEASY)
+        # self.vehicle.SetTireStepSize(self.step_size)
+
+        for wheel in self.vehicle.GetAxles()[0].GetWheels():
+            tire = veh.ReadTireJSON(
+                veh.GetDataFile("gator/json/Gator_TMeasyTireFront.json")
+            )
+            self.vehicle.InitializeTire(
+                tire, wheel, veh.VisualizationType_MESH, veh.TireModelType_RIGID
+            )
+
+        for wheel in self.vehicle.GetAxles()[1].GetWheels():
+            tire = veh.ReadTireJSON(
+                veh.GetDataFile("gator/json/Gator_TMeasyTireRear.json")
+            )
+            self.vehicle.InitializeTire(
+                tire, wheel, veh.VisualizationType_MESH, veh.TireModelType_RIGID
+            )
+
+        # for axle in self.vehicle.GetAxles():
+        #     tireL = veh.RigidTire(self.rigidtire_file)
+        #     self.vehicle.InitializeTire(
+        #         tireL, axle.m_wheels[0], veh.VisualizationType_MESH
+        #     )
+        #     tireR = veh.RigidTire(self.rigidtire_file)
+        #     self.vehicle.InitializeTire(
+        #         tireR, axle.m_wheels[1], veh.VisualizationType_MESH
+        #     )
 
         # Initialize the vehicle position -> get gator_theta to set the goal position
-        self.vehicle.Initialize()
+        # self.vehicle.Initialize(chrono.ChCoordsysD(initloc, initrot))
 
         self.vehicle.GetSystem().SetCollisionSystemType(
             chrono.ChCollisionSystem.Type_BULLET
         )
-        self.vehicle.GetChassisBody().EnableCollision(False)
-        self.vehicle.GetChassisBody().SetFixed(True)
-        self.vehicle.GetSystem().GetSolver().AsIterative().SetMaxIterations(8)
+        self.vehicle.GetChassisBody().EnableCollision(True)
+        self.vehicle.GetChassisBody().SetFixed(False)
+        self.vehicle.GetSystem().GetSolver().AsIterative().SetMaxIterations(480)
+        a = chrono.ImportSolidWorksSystem(self.bodyfile)
 
         self.steps = 0
 
@@ -245,13 +277,13 @@ class SolarCar(ChronoBaseEnv):
 
         # We should make the path more complex here, but this is fine for now
         self.driver = veh.ChPathFollowerDriver(
-            self.vehicle.GetVehicle(),
+            self.vehicle,
             self.path,
             "my_path",
             0.0,
         )
-        self.driver.GetSpeedController().SetGains(0.4, 0, 0)
-        self.driver.GetSteeringController().SetGains(0.4, 0, 0)
+        self.driver.GetSpeedController().SetGains(0.5, 0.1, 0)
+        self.driver.GetSteeringController().SetGains(0.1, 0.3, 0)
         self.driver.GetSteeringController().SetLookAheadDistance(5)
         self.driver.Initialize()
 
@@ -268,6 +300,7 @@ class SolarCar(ChronoBaseEnv):
         self.waypoint_rewards = [
             [chrono.ChVector3d(x, y, 0), False] for (x, y, z) in self.points
         ]
+        self.waypoint_rewards[0][1] = True
 
         self.render()
 
@@ -281,53 +314,63 @@ class SolarCar(ChronoBaseEnv):
         Args:
             action (2 x 1 np.array): Action to be applied to the environment, consisting of throttle and steering.
         """
-        time = self.vehicle.GetSystem().GetChTime()
+        try:
+            time = self.vehicle.GetSystem().GetChTime()
 
-        desired_speed = action[0] / 3.6  # Convert to m/s
+            print(action[0])
+            desired_speed = action[0] / 3.6  # Convert to m/s
 
-        self.driver.SetDesiredSpeed(desired_speed)
+            self.driver.SetDesiredSpeed(desired_speed)
 
-        for _ in range(self.steps_per_action):
-            driver_inputs = self.driver.GetInputs()
+            if self.vehicle.GetSystem().GetNumShafts() > 0:
+                shafts = self.vehicle.GetSystem().GetShafts()
+                for shaft in shafts:
+                    shaft.SetAppliedTorque(0)
 
-            self.driver.Synchronize(time)
-            self.vehicle.Synchronize(time, driver_inputs, self.terrain)
-            self.terrain.Synchronize(time)
+            for _ in range(self.steps_per_action):
+                driver_inputs = self.driver.GetInputs()
 
-            if self._render_setup:
-                self.vis.Synchronize(time, driver_inputs)
-                self.vis.Advance(self.step_size)
+                self.driver.Synchronize(time)
+                self.vehicle.Synchronize(time, driver_inputs, self.terrain)
+                self.terrain.Synchronize(time)
 
-            self.driver.Advance(self.step_size)
+                if self._render_setup:
+                    self.vis.Synchronize(time, driver_inputs)
+                    self.vis.Advance(self.step_size)
 
-            # most processing time
-            self.vehicle.Advance(self.step_size)
-            self.terrain.Advance(self.step_size)
+                self.driver.Advance(self.step_size)
 
-            self.vehicle.GetSystem().DoStepDynamics(self.step_size)
+                # most processing time
+                self.vehicle.Advance(self.step_size)
+                self.terrain.Advance(self.step_size)
 
-        # Get the observation
-        self.observation = self.get_observation()
-        # Get reward
-        self.reward = self.get_reward(desired_speed)
+                self.vehicle.GetSystem().DoStepDynamics(self.step_size)
 
-        self.weather.update(self.vehicle.GetChassisBody().GetRotAngle())
+            # Get the observation
+            self.observation = self.get_observation()
+            # Get reward
+            self.reward += self.get_reward(desired_speed)
 
-        # Update Array
-        # power = self.weather.dc_power()
-        self.array.update(
-            self.voltage,
-            self.weather.get_irradiance(),
-            self.weather.get_attribute("Temperature"),
-        )
-        current = self.array.get_current()
-        self.array.step()
+            self.weather.update(self.vehicle.GetChassisBody().GetRotAngle())
 
-        # Update Battery
-        if self.steps % 10 == 0:
-            self.battery.update(-current)
-            self.battery.step()
-            self.soc = self.battery.get_soc()
+            # Update Array
+            # power = self.weather.dc_power()
+            self.array.update(
+                self.voltage,
+                self.weather.get_irradiance(),
+                self.weather.get_attribute("Temperature"),
+            )
+            current = self.array.get_current()
+            self.array.step()
+
+            # Update Battery
+            if self.steps % 10 == 0:
+                self.battery.update(-current)
+                self.battery.step()
+                self.soc = self.battery.get_soc()
+        except Exception as e:
+            print("Error in step: ", e)
+            self._truncated = True
 
         # Check if we are done
         self.is_terminated()
@@ -353,7 +396,7 @@ class SolarCar(ChronoBaseEnv):
                 self.vis.SetWindowTitle("HMMWV JSON specification")
                 self.vis.SetWindowSize(1280, 1024)
 
-                trackPoint = chrono.ChVector3d(0.0, 0.0, 0)
+                trackPoint = chrono.ChVector3d(0.0, 0.0, 3)
                 self.vis.SetChaseCamera(trackPoint, 6.0, 0.5)
 
                 self.vis.Initialize()
@@ -361,7 +404,7 @@ class SolarCar(ChronoBaseEnv):
                 self.vis.AddSkyBox()
                 # self.vis.SetChaseCameraPosition(chrono.ChVector3d(0, 0, 5))
 
-                self.vis.AttachVehicle(self.vehicle.GetVehicle())
+                self.vis.AttachVehicle(self.vehicle)
 
                 self._render_setup = True
             self.vis.BeginScene()
@@ -377,10 +420,10 @@ class SolarCar(ChronoBaseEnv):
             float: Reward for the current step
         """
 
-        points_being_alive = 1
+        points_for_moving_forward = ((speed) / self.max_speed) * 10
 
-        # penalizes negative speeds
-        points_for_moving_forward = 1 * ((speed) / self.max_speed)
+        if speed == 0:
+            points_for_moving_forward = -1
 
         waypoint_reward = 0
 
@@ -401,7 +444,7 @@ class SolarCar(ChronoBaseEnv):
                     )
                     break
 
-        return points_being_alive + points_for_moving_forward + waypoint_reward
+        return points_for_moving_forward + waypoint_reward
 
     def is_terminated(self):
         """Check if the environment is terminated"""
@@ -460,7 +503,7 @@ class SolarCar(ChronoBaseEnv):
         heading_needed = np.arctan2(delta_y, delta_x)
         observation[3] = heading_needed
 
-        observation[4] = self.vehicle.GetVehicle().GetSpeed()
+        observation[4] = self.vehicle.GetSpeed()
 
         return observation
 
