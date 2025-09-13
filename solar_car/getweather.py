@@ -1,0 +1,77 @@
+import pandas as pd
+import pvlib
+import numpy as np
+
+
+class Weather:
+    def __init__(self, step_size: float):
+        self.time = 0
+        self.step_size = step_size
+        self.df = pd.read_csv("solar_car/weather5min.csv")
+        self.df = self.df[self.df["Temperature"] != 0]
+        self.heading = 0
+
+        location = pvlib.location.Location(
+            latitude=30.26, longitude=-97.75
+        )  # Location for Austin right now
+        surface_df = pvlib.tracking.calc_surface_orientation(self.heading, 0, 90)
+        surface_tilt, surface_azimuth = (
+            surface_df["surface_tilt"],
+            surface_df["surface_azimuth"],
+        )
+
+        times = pd.to_datetime(self.df[["Year", "Month", "Day", "Hour", "Minute"]])
+        solar_position = location.get_solarposition(times)
+        self.df_poa = pvlib.irradiance.get_total_irradiance(
+            surface_tilt,
+            surface_azimuth,
+            dni=self.get_attribute("DNI"),
+            ghi=self.get_attribute("GHI"),
+            dhi=self.get_attribute("DHI"),
+            dni_extra=None,
+            airmass=None,
+            albedo=0.25,
+            surface_type=None,
+            solar_zenith=solar_position["apparent_zenith"],
+            solar_azimuth=solar_position["azimuth"],
+            model="isotropic",
+        )
+
+    def update(self, heading):
+        self.time += self.step_size
+        self.heading = heading
+
+    def get_attribute(self, attribute):
+        attr = self.df[attribute]
+        index = int(self.time / 60 // 5)
+        return attr[index]
+
+    def get_irradiance(self):
+        index = int(self.time / 60 / 5)
+        return self.df_poa.iloc[index, 0]
+
+    def cell_temp(self):
+        params = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS["sapm"][
+            "open_rack_glass_glass"
+        ]
+        cell_temp = pvlib.temperature.sapm_cell(
+            self.get_irradiance(),
+            temp_air=self.get_attribute("Temperature"),
+            wind_speed=self.get_attribute("Wind Speed"),
+            a=params["a"],
+            b=params["b"],
+            deltaT=params["deltaT"],
+            irrad_ref=1000,
+        )
+        return cell_temp
+
+    def dc_power(self):
+        """
+        power output of an array in direct current
+        """
+        gamma_pdc = -0.004  # divide by 100 to go from %/°C to 1/°C
+        nameplate = 1e3
+        power = pvlib.pvsystem.pvwatts_dc(
+            self.get_irradiance(), self.cell_temp(), nameplate, gamma_pdc
+        )
+        return power

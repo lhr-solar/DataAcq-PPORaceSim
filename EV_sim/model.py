@@ -3,7 +3,7 @@ This modules contains the classes and functionailities the calculations involved
 simulations
 """
 
-__all__ = ['VehicleDynamics']
+__all__ = ["VehicleDynamics"]
 
 __authors__ = "Moin Ahmed"
 __copyright__ = "Copyright 2023 by EV_sim. All rights reserved."
@@ -13,25 +13,32 @@ from collections.abc import Callable
 import numpy as np
 import numpy.typing
 
-from EV_sim.ev import EV #EV class in ev.py
+from EV_sim.ev import EV  # EV class in ev.py
 from EV_sim.extern_conditions import ExternalConditions
 from EV_sim.drivecycles import DriveCycle
 from EV_sim.utils.constants import PhysicsConstants
 from EV_sim.sol import Solution
 from EV_sim.utils.timer import sol_timer
 
-from ..solar_car_v2.Battery import Battery
+from ..solar_car.Battery import Battery
+
 
 class VehicleDynamics:
     """
     VehicleDynamics simulates the demanded power and current from the batter pack.
     """
-    # Drag
-    
-    air_density = 1.225  # kg/m^3
-    C_r = 0.00175 #unitless from the code by philip + ishan
 
-    def __init__(self, ev_obj: EV, drive_cycle_obj: DriveCycle, external_condition_obj: ExternalConditions) -> None:
+    # Drag
+
+    air_density = 1.225  # kg/m^3
+    C_r = 0.00175  # unitless from the code by philip + ishan
+
+    def __init__(
+        self,
+        ev_obj: EV,
+        drive_cycle_obj: DriveCycle,
+        external_condition_obj: ExternalConditions,
+    ) -> None:
         """
         VehicleDynamics class constructor.
         :param ev_obj: (EV) EV class object that contains vehicle parameters.
@@ -52,12 +59,16 @@ class VehicleDynamics:
         if isinstance(external_condition_obj, ExternalConditions):
             self.ExtCond = external_condition_obj
         else:
-            raise TypeError("external_condition_onj needs to be External condition object.")
+            raise TypeError(
+                "external_condition_onj needs to be External condition object."
+            )
 
         if isinstance(self.ExtCond.road_grade_angle, np.ndarray):
             if len(self.ExtCond.road_grade_angle) != len(self.DriveCycle.t):
-                raise ValueError("The lengths of external condition's road grade and drive cycle's time array do not "
-                                 "match.")
+                raise ValueError(
+                    "The lengths of external condition's road grade and drive cycle's time array do not "
+                    "match."
+                )
 
     @property
     def des_speed(self) -> numpy.typing.ArrayLike:
@@ -68,7 +79,9 @@ class VehicleDynamics:
         return np.minimum(self.DriveCycle.speed_kmph, self.EV.max_speed) / 3.6
 
     @staticmethod
-    def desired_acc(desired_speed: float, prev_speed: float, current_time: float, prev_time: float) -> float:
+    def desired_acc(
+        desired_speed: float, prev_speed: float, current_time: float, prev_time: float
+    ) -> float:
         """
         Calculates and returns the desired acceleration, m/s^2.
         :param desired_speed: (float) desired speed, m/s
@@ -90,7 +103,9 @@ class VehicleDynamics:
         return equivalent_mass * desired_acc
 
     @staticmethod
-    def aero_F(air_density: float, aero_frontal_area: float, C_d: float, prev_speed: float) -> float:
+    def aero_F(
+        air_density: float, aero_frontal_area: float, C_d: float, prev_speed: float
+    ) -> float:
         """
         Calculates the aerodynamic drag in N.
         :param air_density: External air density, kg/m^3
@@ -99,10 +114,12 @@ class VehicleDynamics:
         :param prev_speed: Speed at the previous time step, m/s
         :return: (float) aerodynamic drag, N
         """
-        return 0.5 * air_density * aero_frontal_area * C_d * (prev_speed ** 2)
+        return 0.5 * air_density * aero_frontal_area * C_d * (prev_speed**2)
 
     @staticmethod
-    def aero_F_power(air_density: float, prev_speed: float, aero_frontal_area: float, C_d: float) -> float:
+    def aero_F_power(
+        air_density: float, prev_speed: float, aero_frontal_area: float, C_d: float
+    ) -> float:
         """
         Calculates the power consumed by aero in N
         :param air_density: External air density, kg/m^3
@@ -114,7 +131,9 @@ class VehicleDynamics:
         return 0.5 * air_density * (prev_speed**3) * aero_frontal_area * C_d
 
     @staticmethod
-    def roll_grade_F(max_veh_mass: float, gravity_acc: float, grade_angle: float) -> float:
+    def roll_grade_F(
+        max_veh_mass: float, gravity_acc: float, grade_angle: float
+    ) -> float:
         """
         Calculates the rolling grade force.
         :param max_veh_mass: max. vehicle mass, kg
@@ -123,9 +142,11 @@ class VehicleDynamics:
         :return:  (float) rolling grade force, N
         """
         return max_veh_mass * gravity_acc * np.sin(grade_angle)
-    
+
     @staticmethod
-    def rolling_resistance(max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float) -> float:
+    def rolling_resistance(
+        max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float
+    ) -> float:
         """
         Calculates the rolling resistance (friction between road and tires)
         :param C_r: rolling coefficient, unit-less
@@ -134,10 +155,12 @@ class VehicleDynamics:
         :param prev_speed: Speed at the previous time step, m/s
         :return:  (float) rolling resistance force, N
         """
-        return C_r * (1 + (prev_speed/3.6)/161)* max_veh_mass * gravity_acc
+        return C_r * (1 + (prev_speed / 3.6) / 161) * max_veh_mass * gravity_acc
 
     @staticmethod
-    def rolling_resistance_power(max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float)-> float:
+    def rolling_resistance_power(
+        max_veh_mass: float, gravity_acc: float, prev_speed: float, C_r: float
+    ) -> float:
         """
         Calculates power consumed by rolling resistance (friction between road and tires)
         :param C_r: rolling coefficient, unit-less
@@ -146,11 +169,24 @@ class VehicleDynamics:
         :param prev_speed: Speed at the previous time step, m/s
         :return:  (float) rolling resistance force, N
         """
-        return 0.278* C_r * (1 + (prev_speed/3.6)/161)* max_veh_mass * gravity_acc * (prev_speed/3.6)
+        return (
+            0.278
+            * C_r
+            * (1 + (prev_speed / 3.6) / 161)
+            * max_veh_mass
+            * gravity_acc
+            * (prev_speed / 3.6)
+        )
 
     @staticmethod
-    def demand_torque(des_acc_F: float, aero_F: float, roll_grade_F: float, road_F: float, wheel_radius: float,
-                      gear_ratio: float) -> float:
+    def demand_torque(
+        des_acc_F: float,
+        aero_F: float,
+        roll_grade_F: float,
+        road_F: float,
+        wheel_radius: float,
+        gear_ratio: float,
+    ) -> float:
         return (des_acc_F + aero_F + roll_grade_F + road_F) * wheel_radius / gear_ratio
 
     def init_cond(self):
@@ -185,11 +221,24 @@ class VehicleDynamics:
 
         @sol_timer
         def initialize_and_iterations(self) -> Solution:
-            prev_speed, prev_motor_speed, prev_distance, prev_SOC, prev_time = self.init_cond()  # initialization
-            sol = self.create_init_arrays()  # create arrays for results and calculations
+            prev_speed, prev_motor_speed, prev_distance, prev_SOC, prev_time = (
+                self.init_cond()
+            )  # initialization
+            sol = (
+                self.create_init_arrays()
+            )  # create arrays for results and calculations
             # Run the simulation.
             for k in range(len(self.DriveCycle.t)):  # k represents time index.
-                func(self, sol, k, prev_time, prev_speed, prev_motor_speed, prev_distance, prev_SOC)
+                func(
+                    self,
+                    sol,
+                    k,
+                    prev_time,
+                    prev_speed,
+                    prev_motor_speed,
+                    prev_distance,
+                    prev_SOC,
+                )
                 # update relevant variables below
                 prev_time = self.DriveCycle.t[k]
                 prev_speed = sol.actual_speed[k]
@@ -201,8 +250,16 @@ class VehicleDynamics:
         return initialize_and_iterations
 
     @simulate_over_all_timesteps
-    def simulate(self, sol: Solution, k: int, prev_time: float, prev_speed: float, prev_motor_speed: float,
-                 prev_distance: float, prev_SOC: float) -> None:
+    def simulate(
+        self,
+        sol: Solution,
+        k: int,
+        prev_time: float,
+        prev_speed: float,
+        prev_motor_speed: float,
+        prev_distance: float,
+        prev_SOC: float,
+    ) -> None:
         """
         Performs vehicle dynamics simulation at a specific time step, k. It updates the Solution instance attributes
         at this time step, k.
@@ -215,20 +272,36 @@ class VehicleDynamics:
         :param prev_SOC: SOC at the previous time step.
         :return: (None)
         """
-        sol.des_acc[k] = VehicleDynamics.desired_acc(desired_speed=self.des_speed[k], prev_speed=prev_speed,
-                                                     current_time=self.DriveCycle.t[k], prev_time=prev_time)
-        sol.des_acc_F[k] = VehicleDynamics.desired_acc_F(equivalent_mass=self.EV.equiv_mass, desired_acc=sol.des_acc[k])
-        sol.aero_F[k] = VehicleDynamics.aero_F(self.air_density, self.EV.A_front, self.EV.C_d, prev_speed)
-        sol.roll_grade_F[k] = VehicleDynamics.roll_grade_F(max_veh_mass=self.EV.max_mass,
-                                                           gravity_acc=PhysicsConstants.g,
-                                                           grade_angle=self.ExtCond.road_grade_angle)
+        sol.des_acc[k] = VehicleDynamics.desired_acc(
+            desired_speed=self.des_speed[k],
+            prev_speed=prev_speed,
+            current_time=self.DriveCycle.t[k],
+            prev_time=prev_time,
+        )
+        sol.des_acc_F[k] = VehicleDynamics.desired_acc_F(
+            equivalent_mass=self.EV.equiv_mass, desired_acc=sol.des_acc[k]
+        )
+        sol.aero_F[k] = VehicleDynamics.aero_F(
+            self.air_density, self.EV.A_front, self.EV.C_d, prev_speed
+        )
+        sol.roll_grade_F[k] = VehicleDynamics.roll_grade_F(
+            max_veh_mass=self.EV.max_mass,
+            gravity_acc=PhysicsConstants.g,
+            grade_angle=self.ExtCond.road_grade_angle,
+        )
         if np.abs(prev_speed) > 0:
-            sol.roll_grade_F[k] = sol.roll_grade_F[k] + self.EV.C_r * self.EV.max_mass * PhysicsConstants.g
-        sol.demand_torque[k] = VehicleDynamics.demand_torque(des_acc_F=sol.des_acc_F[k], aero_F=sol.aero_F[k],
-                                                             roll_grade_F=sol.roll_grade_F[k],
-                                                             road_F=self.ExtCond.road_force,
-                                                             wheel_radius=self.EV.drive_train.wheel.r,
-                                                             gear_ratio=self.EV.drive_train.gear_box.N)
+            sol.roll_grade_F[k] = (
+                sol.roll_grade_F[k]
+                + self.EV.C_r * self.EV.max_mass * PhysicsConstants.g
+            )
+        sol.demand_torque[k] = VehicleDynamics.demand_torque(
+            des_acc_F=sol.des_acc_F[k],
+            aero_F=sol.aero_F[k],
+            roll_grade_F=sol.roll_grade_F[k],
+            road_F=self.ExtCond.road_force,
+            wheel_radius=self.EV.drive_train.wheel.r,
+            gear_ratio=self.EV.drive_train.gear_box.N,
+        )
 
         # The remaining calculations leads to actual speed
         # First check if demand torque is limited by the motor characteristics and calculate the max. torque and
@@ -236,9 +309,14 @@ class VehicleDynamics:
         if prev_motor_speed < self.EV.motor.RPM_r:
             sol.max_torque[k] = self.EV.motor.L_max
         else:
-            sol.max_torque[k] = self.EV.motor.L_max * self.EV.motor.RPM_r / prev_motor_speed
+            sol.max_torque[k] = (
+                self.EV.motor.L_max * self.EV.motor.RPM_r / prev_motor_speed
+            )
 
-        sol.limit_regen[k] = np.minimum(sol.max_torque[k], self.EV.drive_train.frac_regen_torque * self.EV.motor.L_max)
+        sol.limit_regen[k] = np.minimum(
+            sol.max_torque[k],
+            self.EV.drive_train.frac_regen_torque * self.EV.motor.L_max,
+        )
         sol.limit_torque[k] = np.minimum(sol.demand_torque[k], sol.max_torque[k])
         if sol.limit_torque[k] > 0:
             sol.motor_torque[k] = sol.limit_torque[k]
@@ -246,36 +324,65 @@ class VehicleDynamics:
             sol.motor_torque[k] = np.maximum(-sol.limit_regen[k], sol.limit_torque[k])
 
         # Now calculate the actual accelerations and speeds. Finally, the distance is calculated
-        sol.actual_acc_F[k] = sol.limit_torque[k] * self.EV.drive_train.gear_box.N / self.EV.drive_train.wheel.r - \
-                              sol.aero_F[k] - sol.roll_grade_F[k] - self.ExtCond.road_force
+        sol.actual_acc_F[k] = (
+            sol.limit_torque[k]
+            * self.EV.drive_train.gear_box.N
+            / self.EV.drive_train.wheel.r
+            - sol.aero_F[k]
+            - sol.roll_grade_F[k]
+            - self.ExtCond.road_force
+        )
         sol.actual_acc[k] = sol.actual_acc_F[k] / self.EV.equiv_mass
-        sol.motor_speed[k] = np.minimum(self.EV.motor.RPM_max, self.EV.drive_train.gear_box.N * (
-                prev_speed + sol.actual_acc[k] * (self.DriveCycle.t[k] - prev_time)) * 60 / (
-                                                2 * np.pi * self.EV.drive_train.wheel.r))
-        sol.actual_speed[k] = sol.motor_speed[k] * 2 * np.pi * self.EV.drive_train.wheel.r / (
-                60 * self.EV.drive_train.gear_box.N)
+        sol.motor_speed[k] = np.minimum(
+            self.EV.motor.RPM_max,
+            self.EV.drive_train.gear_box.N
+            * (prev_speed + sol.actual_acc[k] * (self.DriveCycle.t[k] - prev_time))
+            * 60
+            / (2 * np.pi * self.EV.drive_train.wheel.r),
+        )
+        sol.actual_speed[k] = (
+            sol.motor_speed[k]
+            * 2
+            * np.pi
+            * self.EV.drive_train.wheel.r
+            / (60 * self.EV.drive_train.gear_box.N)
+        )
         sol.actual_speed_kmph[k] = sol.actual_speed[k] * 3600 / 1000
-        sol.distance[k] = prev_distance + ((sol.actual_speed[k] + prev_speed) / 2) * (self.DriveCycle.t[k] -
-                                                                                      prev_time) / 1000
+        sol.distance[k] = (
+            prev_distance
+            + ((sol.actual_speed[k] + prev_speed) / 2)
+            * (self.DriveCycle.t[k] - prev_time)
+            / 1000
+        )
 
         # Finally, calculates the battery power, current demanded
         if sol.limit_torque[k] > 0:
             sol.demand_power[k] = sol.limit_torque[k]
         else:
             sol.demand_power[k] = np.maximum(sol.limit_torque[k], -sol.limit_regen[k])
-        sol.demand_power[k] = (sol.demand_power[k] * 2 * np.pi) * (prev_motor_speed + sol.motor_speed[k]) / (2 * 60000)
-        sol.limit_power[k] = np.maximum(-self.EV.motor.P_max, np.minimum(self.EV.motor.P_max, sol.demand_power[k]))
+        sol.demand_power[k] = (
+            (sol.demand_power[k] * 2 * np.pi)
+            * (prev_motor_speed + sol.motor_speed[k])
+            / (2 * 60000)
+        )
+        sol.limit_power[k] = np.maximum(
+            -self.EV.motor.P_max, np.minimum(self.EV.motor.P_max, sol.demand_power[k])
+        )
         sol.battery_demand[k] = self.EV.overhead_power / 1000
         if sol.limit_power[k] > 0:
-            sol.battery_demand[k] = sol.battery_demand[k] + sol.limit_power[k] / self.EV.drive_train.eff
+            sol.battery_demand[k] = (
+                sol.battery_demand[k] + sol.limit_power[k] / self.EV.drive_train.eff
+            )
         else:
-            sol.battery_demand[k] = sol.battery_demand[k] + sol.limit_power[k] * self.EV.drive_train.eff
+            sol.battery_demand[k] = (
+                sol.battery_demand[k] + sol.limit_power[k] * self.EV.drive_train.eff
+            )
         self.battery.step()
         sol.current[k] = sol.battery_demand[k] * 1000 / self.EV.pack.pack_V_nom
         sol.cell_current[k] = sol.current[k] / self.EV.pack.Np
         sol.battery_SOC[k] = Battery.get_soc()
         self.battery_voltage[k] = self.battery.get_voltage()
-        #sol.battery_SOC[k] = prev_SOC - sol.current[k] * (self.DriveCycle.t[k] - prev_time)
+        # sol.battery_SOC[k] = prev_SOC - sol.current[k] * (self.DriveCycle.t[k] - prev_time)
 
     def __repr__(self):
         return f"VehicleDynamics({self.EV}, {self.DriveCycle}, {self.ExtCond})"

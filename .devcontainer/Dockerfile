@@ -17,7 +17,8 @@ RUN conda install -c conda-forge -y irrlicht=1.8.5
 # RUN conda install -c conda-forge -y glfw
 
 RUN pip install stable-baselines3==2.1.0
-RUN pip install tensorflow gym
+RUN pip install tensorflow==2.20.0
+RUN pip install gym
 RUN pip install gymnasium==0.29.1
 RUN pip install pygame==2.5.1
 RUN pip install scipy==1.10.1
