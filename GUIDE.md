@@ -70,7 +70,7 @@ env.render()  # (Optional) Show the environment visually
 ```
 
 **Spaces:**
-- `Box`: Continuous values (e.g., actions between -1 and 1)
+- `Box`: Continuous values (e.g., actions between -1 and 1) 
 - `Discrete`: Integer values (e.g., 0, 1, 2)
 
 **Example:**
@@ -316,7 +316,7 @@ python main_2.py --help
 ## 5. Learning Resources
 
 - [Stable Baselines3 Docs](https://stable-baselines3.readthedocs.io/)
-- [OpenAI Gym Docs](https://www.gymlibrary.dev/)
+- [OpenAI Gym Docs](https://gymnasium.farama.org)
 - [PyTorch Tutorials](https://pytorch.org/tutorials/)
 
 ---
