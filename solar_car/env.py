@@ -299,7 +299,7 @@ class SolarCar(ChronoBaseEnv):
 
             desired_speed = action[0] / 3.6  # Convert to m/s
 
-            self.driver.SetDesiredSpeed(100)
+            self.driver.SetDesiredSpeed(desired_speed)
 
             driver_inputs = self.driver.GetInputs()
 
@@ -432,6 +432,7 @@ class SolarCar(ChronoBaseEnv):
         )
 
         # this needs to work
+        # sus
         if curr_point_dist > next_point_dist:
             self.waypoint_idx += 1
         elif curr_point_dist < prev_point_dist and self.waypoint_idx > 0:

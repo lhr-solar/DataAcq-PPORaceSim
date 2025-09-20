@@ -1,8 +1,6 @@
 import time
 import logging
 
-# import os
-
 import liionpack as lp
 import pybamm
 import numpy as np
@@ -23,7 +21,7 @@ class Battery:
     """
 
     num_cells = 288  # Number of cells in the array
-    voltage = 0.647  # mpp(V) from powergen data should be updating based on time though
+    voltage = 0.647  # mpp(V) from powergen data should be updating based on time though #NEED TO LOOK AT IT
     temperature = 25  # Temperature in Celsius
     time_period = 3600  # Time period in seconds (e.g., 1 hour)
     current_draw = 1.2  # mpp(I) from powergen data
@@ -36,10 +34,11 @@ class Battery:
         self.irradiance = None
         self.temperature = None
 
-        # Need accurate numbers for this. Let's just assume Telsa for now?
         self.np = 9  # number of parallel cells
         self.ns = 32  # number of series cells
-        self.netlist = lp.setup_circuit(self.np, self.ns, V=25, I=300)
+        self.netlist = lp.setup_circuit(
+            self.np, self.ns, V=25, I=300
+        )  # NEED TO TEST; see if they are accurate??
 
         logging.info("Initializing battery simulation")
         start = time.time()
@@ -108,12 +107,6 @@ class Battery:
 
     def get_cell_voltage(self) -> float:
         return self._output()["Pack terminal voltage [V]"][-1]
-
-
-if __name__ == "__main__":
-    battery = Battery(1)
-    battery.step()
-    print(battery.get_soc())
 
 
 class SolarCarBatteryManager(CasadiManager):
