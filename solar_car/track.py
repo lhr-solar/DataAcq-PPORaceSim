@@ -55,7 +55,7 @@ def generate_path():
     # shift the points to 0, 0
     shift_left = bounding_box[0] + width / 2
     shift_down = bounding_box[1] + height / 2
-    points = [(x - shift_left, y - shift_down, 0) for (x, y, z) in points]
+    points = [(x - shift_left, y - shift_down, 0) for (x, y) in points]
 
     vector_3d_points = [chrono.ChVector3d(x, y, z) for (x, y, z) in points]
 

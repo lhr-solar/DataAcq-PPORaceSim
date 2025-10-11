@@ -32,4 +32,3 @@ RUN pip install opencv-python==4.7.0.72
 RUN pip uninstall -y pyqt5
 RUN pip install lmfit pvlib
 
-CMD [ "/bin/bash", ]

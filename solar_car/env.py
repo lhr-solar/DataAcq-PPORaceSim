@@ -38,7 +38,6 @@
 # Chrono imports
 import pychrono as chrono
 from pychrono import vehicle as veh
-from pychrono import irrlicht
 
 # Standard Python imports
 import numpy as np
@@ -51,7 +50,7 @@ from .chrono_base import ChronoBaseEnv
 import gymnasium as gym
 from .track import generate_path, generate_terrain
 
-from .getweather import Weather
+from .weather import Weather
 
 # Array and battery
 from .Battery import Battery
