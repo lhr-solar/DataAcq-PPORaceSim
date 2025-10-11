@@ -6,7 +6,7 @@ import pybamm
 import numpy as np
 from liionpack import CasadiManager
 
-parameter_values = pybamm.ParameterValues("Chen2020")
+chen_values = pybamm.ParameterValues("Chen2020")
 
 
 class Battery:
@@ -20,25 +20,45 @@ class Battery:
         The time step length of the simulation in seconds. The default is 1.0.
     """
 
-    num_cells = 288  # Number of cells in the array
-    voltage = 0.647  # mpp(V) from powergen data should be updating based on time though #NEED TO LOOK AT IT
-    temperature = 25  # Temperature in Celsius
-    time_period = 3600  # Time period in seconds (e.g., 1 hour)
     current_draw = 1.2  # mpp(I) from powergen data
     _step = 1
+
+    parameter_values = pybamm.ParameterValues(
+        {
+            **chen_values,
+            # cell
+            "Nominal cell capacity [A.h]": 45,  # 5 Ah per cell, 9 per module
+            "Contact resistance [Ohm]": 0,
+            "Cell cooling surface area [m2]": 0.104,
+            "Cell volume [m3]": 0.00208,
+            "Cell thermal expansion coefficient [m.K-1]": 1.1e-06,
+            # separator
+            "Separator porosity": 0.47,
+            "Separator Bruggeman coefficient (electrolyte)": 1.5,
+            "Separator density [kg.m-3]": 397.0,
+            "Separator specific heat capacity [J.kg-1.K-1]": 700.0,
+            "Separator thermal conductivity [W.m-1.K-1]": 0.16,
+            # sim
+            "Reference temperature [K]": 298.15,
+            "Ambient temperature [K]": 298.15,
+            "Initial temperature [K]": 298.15,
+            # random guess from Chat
+            "Total heat transfer coefficient [W.m-2.K-1]": 5.53,
+        }
+    )
 
     def __init__(self, time_step: float):
         self.time_step = time_step
 
-        self.voltage = None
-        self.irradiance = None
-        self.temperature = None
-
-        self.np = 9  # number of parallel cells
+        self.np = 1  # number of parallel cells
         self.ns = 32  # number of series cells
         self.netlist = lp.setup_circuit(
-            self.np, self.ns, V=25, I=300
-        )  # NEED TO TEST; see if they are accurate??
+            self.np,
+            self.ns,
+            V=120,
+            I=40,
+            Ri=13.5e-3,
+        )
 
         logging.info("Initializing battery simulation")
         start = time.time()
@@ -51,7 +71,7 @@ class Battery:
         self.sim.solve(
             netlist=self.netlist,
             sim_func=lp.basic_simulation,
-            parameter_values=parameter_values,
+            parameter_values=self.parameter_values,
             output_variables=output_variables,
             inputs=None,
             initial_soc=1,
@@ -157,7 +177,7 @@ class SolarCarBatteryManager(CasadiManager):
         # self.Nsteps = len(self.protocol)
         self.dt = dt
         self.Nsteps = minSteps
-        self.protocol = np.array([1, -1] + [0] * (self.Nsteps - 1))
+        self.protocol = np.array([1, -1] + [0] * (self.Nsteps - 2))
         netlist.loc[self.I_map, ("value")] = self.protocol[0]
         # Solve the circuit to initialise the electrochemical models
         V_node, I_batt = lp.solve_circuit_vectorized(

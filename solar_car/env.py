@@ -53,8 +53,8 @@ from .track import generate_path, generate_terrain
 from .weather import Weather
 
 # Array and battery
-from .Battery import Battery
-from .Array.Array import ThreeParamCell
+from .battery import Battery
+from .array.Array import ThreeParamCell
 
 
 class SolarCar(ChronoBaseEnv):

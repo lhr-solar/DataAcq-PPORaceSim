@@ -16,14 +16,18 @@ RUN conda install -c conda-forge -y irrlicht=1.8.5
 # RUN conda install -c nvidia/label/cuda-11.7.0 -y cuda-toolkit
 # RUN conda install -c conda-forge -y glfw
 
-RUN pip install stable-baselines3==2.1.0
-RUN pip install tensorflow==2.20.0
-RUN pip install gym
-RUN pip install gymnasium==0.29.1
-RUN pip install pygame==2.5.1
-RUN pip install scipy==1.10.1
-RUN pip install liionpack
-RUN pip install splines
+COPY ../requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+# RUN pip install stable-baselines3==2.1.0
+# RUN pip install tensorflow==2.20.0
+# RUN pip install gym
+# RUN pip install gymnasium==0.29.1
+# RUN pip install pygame==2.5.1
+# RUN pip install scipy==1.10.1
+# # 0.3.8 for liionpack
+# RUN pip install liionpack 
+# RUN pip install splines
+
 
 # RUN curl -LO 
 RUN conda install -y "https://anaconda.org/projectchrono/pychrono/9.0.0/download/linux-64/pychrono-9.0.0-py39_4853.tar.bz2"
