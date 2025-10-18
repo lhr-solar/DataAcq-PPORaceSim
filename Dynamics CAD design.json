@@ -1,0 +1,1207 @@
+{ 
+	"sys"	: 
+	{
+		"_version_ChSystemNSC"	: 0,
+		"_version_class_chrono__ChSystem"	: 0,
+		"assembly"	: 
+		{
+			"_version_ChAssembly"	: 0,
+			"_version_ChPhysicsItem"	: 0,
+			"_version_class_chrono__ChObj"	: 0,
+			"m_name"	: "",
+			"m_tag"	: -1,
+			"ChTime"	: 0,
+			"visual_model"	: 
+			{ 
+				"_reference_ID"	: 0
+			},
+			"cameras"	: 
+			[ 
+			],
+			"bodies"	: 
+			[ 
+				{ 
+					"_type"	: "ChBodyAuxRef",
+					"_object_ID"	: 1,
+					"_version_ChBodyAuxRef"	: 0,
+					"_version_ChBody"	: 0,
+					"m_name"	: "SLDW_GROUND",
+					"m_tag"	: -1,
+					"ChTime"	: 0,
+					"visual_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"cameras"	: 
+					[ 
+					],
+					"_version_class_chrono__ChBodyFrame"	: 0,
+					"_version_class_chrono__ChFrameMoving_double_"	: 0,
+					"_version_class_chrono__ChFrame_double_"	: 0,
+					"m_csys"	: 
+					{
+						"_version_class_chrono__ChCoordsys_double_"	: 0,
+						"pos"	: 
+						{
+							"_version_class_chrono__ChVector3_double_"	: 0,
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"_version_class_chrono__ChQuaternion_double_"	: 0,
+							"e0"	: 1,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dtdt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"fixed"	: true,
+					"collide"	: false,
+					"limit_speed"	: false,
+					"disable_gyrotorque"	: false,
+					"is_sleeping"	: false,
+					"allow_sleeping"	: true,
+					"candidate_sleeping"	: false,
+					"markers"	: 
+					[ 
+					],
+					"forces"	: 
+					[ 
+					],
+					"collision_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"gyro"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xforce"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xtorque"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"variables"	: 
+					{
+						"_version_ChVariablesBodyOwnMass"	: 0,
+						"_version_class_chrono__ChVariables"	: 0,
+						"ndof"	: 6,
+						"disabled"	: true,
+						"offset"	: 0,
+						"mass"	: 1,
+						"inertia"	: 
+						{
+							"_version_class_chrono__ChMatrix_dense_version_tag"	: 1,
+							"rows"	: 3,
+							"columns"	: 3,
+							"data"	: 
+							[ 
+								1,
+								0,
+								0,
+								0,
+								1,
+								0,
+								0,
+								0,
+								1
+							]
+						}
+					},
+					"max_speed"	: 0.5,
+					"max_wvel"	: 6.28319,
+					"sleep_time"	: 0.6,
+					"sleep_minspeed"	: 0.1,
+					"sleep_minwvel"	: 0.04,
+					"sleep_starttime"	: 0,
+					"ref_to_com"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					},
+					"ref_to_abs"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					}
+				},
+				{ 
+					"_type"	: "ChBodyAuxRef",
+					"_object_ID"	: 2,
+					"m_name"	: "24-BDY-1000-TAB-1",
+					"m_tag"	: -1,
+					"ChTime"	: 0,
+					"visual_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"cameras"	: 
+					[ 
+					],
+					"m_csys"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 1,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dtdt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"fixed"	: true,
+					"collide"	: false,
+					"limit_speed"	: false,
+					"disable_gyrotorque"	: false,
+					"is_sleeping"	: false,
+					"allow_sleeping"	: true,
+					"candidate_sleeping"	: false,
+					"markers"	: 
+					[ 
+					],
+					"forces"	: 
+					[ 
+					],
+					"collision_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"gyro"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xforce"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xtorque"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"variables"	: 
+					{
+						"ndof"	: 6,
+						"disabled"	: true,
+						"offset"	: 0,
+						"mass"	: 0,
+						"inertia"	: 
+						{
+							"rows"	: 3,
+							"columns"	: 3,
+							"data"	: 
+							[ 
+								0,
+								-0,
+								-0,
+								-0,
+								0,
+								-0,
+								-0,
+								-0,
+								0
+							]
+						}
+					},
+					"max_speed"	: 0.5,
+					"max_wvel"	: 6.28319,
+					"sleep_time"	: 0.6,
+					"sleep_minspeed"	: 0.1,
+					"sleep_minwvel"	: 0.04,
+					"sleep_starttime"	: 0,
+					"ref_to_com"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: -0,
+								"y"	: -0,
+								"z"	: -0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: -0,
+								"e2"	: -0,
+								"e3"	: -0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					},
+					"ref_to_abs"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					}
+				},
+				{ 
+					"_type"	: "ChBodyAuxRef",
+					"_object_ID"	: 3,
+					"m_name"	: "24-BDY-1101 (Frame)-1",
+					"m_tag"	: -1,
+					"ChTime"	: 0,
+					"visual_model"	: 
+					{ 
+						"_type"	: "ChVisualModel",
+						"_object_ID"	: 4,
+						"_version_ChVisualModel"	: 0,
+						"m_shapes"	: 
+						[ 
+							{
+								"_version_struct_chrono__ChVisualShapeInstance"	: 0,
+								"shape"	: 
+								{ 
+									"_type"	: "ChVisualShapeModelFile",
+									"_object_ID"	: 5,
+									"_version_ChVisualShapeModelFile"	: 0,
+									"_version_class_chrono__ChVisualShape"	: 0,
+									"visible"	: true,
+									"is_mutable"	: false,
+									"material_list"	: 
+									[ 
+									],
+									"filename"	: "Dynamics CAD design_shapes/body_2_1.obj",
+									"scale"	: 
+									{
+										"x"	: 1,
+										"y"	: 1,
+										"z"	: 1
+									}
+								},
+								"frame"	: 
+								{
+									"m_csys"	: 
+									{
+										"pos"	: 
+										{
+											"x"	: 0,
+											"y"	: 0,
+											"z"	: 0
+										},
+										"rot"	: 
+										{
+											"e0"	: 1,
+											"e1"	: 0,
+											"e2"	: 0,
+											"e3"	: 0
+										}
+									}
+								},
+								"wireframe"	: false
+							}
+						]
+					},
+					"cameras"	: 
+					[ 
+					],
+					"m_csys"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: -6.15119e-05,
+							"y"	: 0.695263,
+							"z"	: -0.737048
+						},
+						"rot"	: 
+						{
+							"e0"	: 1,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dtdt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"fixed"	: false,
+					"collide"	: false,
+					"limit_speed"	: false,
+					"disable_gyrotorque"	: false,
+					"is_sleeping"	: false,
+					"allow_sleeping"	: true,
+					"candidate_sleeping"	: false,
+					"markers"	: 
+					[ 
+					],
+					"forces"	: 
+					[ 
+					],
+					"collision_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"gyro"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xforce"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xtorque"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"variables"	: 
+					{
+						"ndof"	: 6,
+						"disabled"	: false,
+						"offset"	: 0,
+						"mass"	: 117.018,
+						"inertia"	: 
+						{
+							"rows"	: 3,
+							"columns"	: 3,
+							"data"	: 
+							[ 
+								43.8037,
+								0.0225623,
+								-0.00201058,
+								0.0225623,
+								34.3343,
+								2.06262,
+								-0.00201058,
+								2.06262,
+								19.8059
+							]
+						}
+					},
+					"max_speed"	: 0.5,
+					"max_wvel"	: 6.28319,
+					"sleep_time"	: 0.6,
+					"sleep_minspeed"	: 0.1,
+					"sleep_minwvel"	: 0.04,
+					"sleep_starttime"	: 0,
+					"ref_to_com"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 6.15119e-05,
+								"y"	: -0.695263,
+								"z"	: 0.737048
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: -0,
+								"e2"	: -0,
+								"e3"	: -0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					},
+					"ref_to_abs"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					}
+				},
+				{ 
+					"_type"	: "ChBodyAuxRef",
+					"_object_ID"	: 6,
+					"m_name"	: "24-PTN-1602 (Battery Mount Frame Tabs)-1",
+					"m_tag"	: -1,
+					"ChTime"	: 0,
+					"visual_model"	: 
+					{ 
+						"_type"	: "ChVisualModel",
+						"_object_ID"	: 7,
+						"m_shapes"	: 
+						[ 
+							{
+								"shape"	: 
+								{ 
+									"_type"	: "ChVisualShapeModelFile",
+									"_object_ID"	: 8,
+									"visible"	: true,
+									"is_mutable"	: false,
+									"material_list"	: 
+									[ 
+									],
+									"filename"	: "Dynamics CAD design_shapes/body_3_1.obj",
+									"scale"	: 
+									{
+										"x"	: 1,
+										"y"	: 1,
+										"z"	: 1
+									}
+								},
+								"frame"	: 
+								{
+									"m_csys"	: 
+									{
+										"pos"	: 
+										{
+											"x"	: 0.322448,
+											"y"	: 0.145288,
+											"z"	: -1.11228
+										},
+										"rot"	: 
+										{
+											"e0"	: -0.0321804,
+											"e1"	: 0,
+											"e2"	: 0.999482,
+											"e3"	: 0
+										}
+									}
+								},
+								"wireframe"	: false
+							},
+							{
+								"shape"	: 
+								{ 
+									"_type"	: "ChVisualShapeModelFile",
+									"_object_ID"	: 9,
+									"visible"	: true,
+									"is_mutable"	: false,
+									"material_list"	: 
+									[ 
+									],
+									"filename"	: "Dynamics CAD design_shapes/body_3_1.obj",
+									"scale"	: 
+									{
+										"x"	: 1,
+										"y"	: 1,
+										"z"	: 1
+									}
+								},
+								"frame"	: 
+								{
+									"m_csys"	: 
+									{
+										"pos"	: 
+										{
+											"x"	: 0.298735,
+											"y"	: 0.145288,
+											"z"	: -1.48015
+										},
+										"rot"	: 
+										{
+											"e0"	: -0.0321804,
+											"e1"	: 0,
+											"e2"	: 0.999482,
+											"e3"	: 0
+										}
+									}
+								},
+								"wireframe"	: false
+							},
+							{
+								"shape"	: 
+								{ 
+									"_type"	: "ChVisualShapeModelFile",
+									"_object_ID"	: 10,
+									"visible"	: true,
+									"is_mutable"	: false,
+									"material_list"	: 
+									[ 
+									],
+									"filename"	: "Dynamics CAD design_shapes/body_3_1.obj",
+									"scale"	: 
+									{
+										"x"	: 1,
+										"y"	: 1,
+										"z"	: 1
+									}
+								},
+								"frame"	: 
+								{
+									"m_csys"	: 
+									{
+										"pos"	: 
+										{
+											"x"	: -0.322448,
+											"y"	: 0.145288,
+											"z"	: -1.11228
+										},
+										"rot"	: 
+										{
+											"e0"	: 0.999482,
+											"e1"	: 0,
+											"e2"	: -0.0321804,
+											"e3"	: 0
+										}
+									}
+								},
+								"wireframe"	: false
+							},
+							{
+								"shape"	: 
+								{ 
+									"_type"	: "ChVisualShapeModelFile",
+									"_object_ID"	: 11,
+									"visible"	: true,
+									"is_mutable"	: false,
+									"material_list"	: 
+									[ 
+									],
+									"filename"	: "Dynamics CAD design_shapes/body_3_1.obj",
+									"scale"	: 
+									{
+										"x"	: 1,
+										"y"	: 1,
+										"z"	: 1
+									}
+								},
+								"frame"	: 
+								{
+									"m_csys"	: 
+									{
+										"pos"	: 
+										{
+											"x"	: -0.298735,
+											"y"	: 0.145288,
+											"z"	: -1.48015
+										},
+										"rot"	: 
+										{
+											"e0"	: 0.999482,
+											"e1"	: 0,
+											"e2"	: -0.0321804,
+											"e3"	: 0
+										}
+									}
+								},
+								"wireframe"	: false
+							}
+						]
+					},
+					"cameras"	: 
+					[ 
+					],
+					"m_csys"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0.179463,
+							"z"	: -1.29453
+						},
+						"rot"	: 
+						{
+							"e0"	: 1,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"m_csys_dtdt"	: 
+					{
+						"pos"	: 
+						{
+							"x"	: 0,
+							"y"	: 0,
+							"z"	: 0
+						},
+						"rot"	: 
+						{
+							"e0"	: 0,
+							"e1"	: 0,
+							"e2"	: 0,
+							"e3"	: 0
+						}
+					},
+					"fixed"	: false,
+					"collide"	: false,
+					"limit_speed"	: false,
+					"disable_gyrotorque"	: false,
+					"is_sleeping"	: false,
+					"allow_sleeping"	: true,
+					"candidate_sleeping"	: false,
+					"markers"	: 
+					[ 
+					],
+					"forces"	: 
+					[ 
+					],
+					"collision_model"	: 
+					{ 
+						"_reference_ID"	: 0
+					},
+					"gyro"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xforce"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"Xtorque"	: 
+					{
+						"x"	: 0,
+						"y"	: 0,
+						"z"	: 0
+					},
+					"variables"	: 
+					{
+						"ndof"	: 6,
+						"disabled"	: false,
+						"offset"	: 0,
+						"mass"	: 0.0544947,
+						"inertia"	: 
+						{
+							"rows"	: 3,
+							"columns"	: 3,
+							"data"	: 
+							[ 
+								0.00186897,
+0,
+								0,
+								0,
+								0.00628158,
+								-3.62007e-07,
+0,
+								-3.62007e-07,
+								0.00445284
+							]
+						}
+					},
+					"max_speed"	: 0.5,
+					"max_wvel"	: 6.28319,
+					"sleep_time"	: 0.6,
+					"sleep_minspeed"	: 0.1,
+					"sleep_minwvel"	: 0.04,
+					"sleep_starttime"	: 0,
+					"ref_to_com"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: -0,
+								"y"	: -0.179463,
+								"z"	: 1.29453
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: -0,
+								"e2"	: -0,
+								"e3"	: -0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					},
+					"ref_to_abs"	: 
+					{
+						"m_csys"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 1,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						},
+						"m_csys_dtdt"	: 
+						{
+							"pos"	: 
+							{
+								"x"	: 0,
+								"y"	: 0,
+								"z"	: 0
+							},
+							"rot"	: 
+							{
+								"e0"	: 0,
+								"e1"	: 0,
+								"e2"	: 0,
+								"e3"	: 0
+							}
+						}
+					}
+				}
+			],
+			"shafts"	: 
+			[ 
+			],
+			"links"	: 
+			[ 
+			],
+			"meshes"	: 
+			[ 
+			],
+			"other_physics_items"	: 
+			[ 
+			]
+		},
+		"G_acc"	: 
+		{
+			"x"	: 0,
+			"y"	: -9.81,
+			"z"	: 0
+		},
+		"ch_time"	: 0,
+		"step"	: 0.04,
+		"stepcount"	: 0,
+		"write_matrix"	: false,
+		"use_sleeping"	: false,
+		"descriptor"	: 
+		{ 
+			"_type"	: "ChSystemDescriptor",
+			"_object_ID"	: 12,
+			"_version_ChSystemDescriptor"	: 0
+		},
+		"solver"	: 
+		{ 
+			"_type"	: "ChSolverPSOR",
+			"_object_ID"	: 13,
+			"_version_class_chrono__ChIterativeSolverVI"	: 0,
+			"_version_class_chrono__ChSolver"	: 0,
+			"solver_type"	: "Type::PSOR",
+			"verbose"	: false,
+			"m_max_iterations"	: 50,
+			"m_warm_start"	: false,
+			"m_tolerance"	: 0,
+			"m_omega"	: 1,
+			"m_shlambda"	: 1
+		},
+		"max_penetration_recovery_speed"	: 0.6,
+		"composition_strategy"	: 
+		{
+		}
+	}
+}
