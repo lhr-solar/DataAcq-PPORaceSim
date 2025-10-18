@@ -1,4 +1,5 @@
 Chassis
+
 - Centroidal Frame:
   - Position: [0.0, 0.0, 0.0]
   - Orientation (Quaternion): [1.0, 0.0, 0.0, 0.0]
@@ -12,16 +13,21 @@ Chassis
   - Orientation (Quaternion): [qw, qx, qy, qz]
 
 don't know what rear connector is, maybe dont have
+
 - Rear Connector Position: [x, y, z]
 
 - Axles:
-  - Back Double Wishbone
+
+  - Front Double Wishbone
+
     - Location: [x, y, z]
     - Steering index: 0
     - Wishbone:
+
       - Camber angle: degrees
       - Toe angle: degrees
       - Spindle:
+
         - Mass
         - Inertia: [Ix, Iy, Iz]
         - COM: [x, y, z]
@@ -29,49 +35,56 @@ don't know what rear connector is, maybe dont have
         - Width: value
 
       - Upright:
+
         - Mass: kg
         - COM: [x, y, z] m
-        - Moments of Inertia: [Ix, Iy, Iz] kg*m^2
-        - Products of Inertia: [Ixy, Ixz, Iyz] kg*m^2
+        - Moments of Inertia: [Ix, Iy, Iz] kg\*m^2
+        - Products of Inertia: [Ixy, Ixz, Iyz] kg\*m^2
         - Radius: m
 
       - Upper Control Arm:
         - Mass: kg
         - COM: [x, y, z] m
-        - Moments of Inertia: [Ix, Iy, Iz] kg*m^2
-        - Products of Inertia: [Ixy, Ixz, Iyz] kg*m^2
+        - Moments of Inertia: [Ix, Iy, Iz] kg\*m^2
+        - Products of Inertia: [Ixy, Ixz, Iyz] kg\*m^2
         - Radius: m
         - Location Chassis Front: [x, y, z] m
         - Location Chassis Back: [x, y, z] m
         - Location Upright: [x, y, z] m
 
+      # two lower
+
       - Lower Control Arm:
+
         - Mass: kg
         - COM: [x, y, z] m
-        - Moments of Inertia: [Ix, Iy, Iz] kg*m^2
-        - Products of Inertia: [Ixy, Ixz, Iyz] kg*m^2
+        - Moments of Inertia: [Ix, Iy, Iz] kg\*m^2
+        - Products of Inertia: [Ixy, Ixz, Iyz] kg\*m^2
         - Radius: m
         - Location Chassis Front: [x, y, z] m
         - Location Chassis Back: [x, y, z] m
         - Location Upright: [x, y, z] m
 
       - Tierod:
+
         - Location Chassis: [x, y, z] m
         - Location Upright: [x, y, z] m
 
       - Spring:
+
         - Location Chassis: [x, y, z] m
         - Location Arm: [x, y, z] m
         - Free Length: m
         - Spring Coefficient: N/m
 
       - Shock:
+
         - Location Chassis: [x, y, z] m
         - Location Arm: [x, y, z] m
-        - Damping Coefficient: N*s/m
+        - Damping Coefficient: N\*s/m
 
       - Axle:
-        - Inertia: kg*m^2
+        - Inertia: kg\*m^2
 
   - Whatever goes on in the front
 
@@ -80,12 +93,13 @@ don't know what rear connector is, maybe dont have
   - Inertia: [Ix, Iy, Iz]
 
 Rack Pinion
+
 - Location: [x, y, z] m
 - Orientation (Quaternion): [qw, qx, qy, qz]
 - Steering Link:
   - Mass: kg
   - COM: [x, y, z] m
-  - Moments of Inertia: [Ix, Iy, Iz] kg*m^2
+  - Moments of Inertia: [Ix, Iy, Iz] kg\*m^2
   - Radius: m
   - Length: m
 - Pinion:
@@ -113,6 +127,7 @@ Maximum steering angle: degrees
     - Tangential Damping: value
 
 Power Train
+
 - "Maximal Motor Speed RPM": RPM
 - "Map Full Throttle": [RPM, Torque]
 - "Map Zero Throttle": [RPM, Torque]
